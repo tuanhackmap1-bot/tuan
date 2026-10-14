@@ -1,0 +1,46 @@
+name: MinDo V4 Offline UI Build (unsigned)
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apply_mindo_v4.py'
+      - '.github/workflows/build-mindo-v4.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Clone public upstream GPL source
+        run: git clone --depth 1 https://github.com/Tranduc1124/DSMINHDUC.git upstream
+      - name: Apply experimental edits
+        run: python3 apply_mindo_v4.py upstream
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        working-directory: upstream
+        run: xcodegen generate
+      - name: Build unsigned app
+        working-directory: upstream
+        run: |
+          xcodebuild -project BolaMinhDuc.xcodeproj -target BolaMinhDuc -configuration Release -sdk iphoneos CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" CONFIGURATION_BUILD_DIR="$PWD/build/bola"
+      - name: Package IPA
+        working-directory: upstream
+        run: |
+          test -d build/bola/BolaMinhDuc.app
+          mkdir -p Payload
+          cp -R build/bola/BolaMinhDuc.app Payload/
+          zip -qry MinDo-V4-UI-only-unsigned.ipa Payload
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MinDo-V4-UI-only-unsigned
+          path: |
+            upstream/MinDo-V4-UI-only-unsigned.ipa
+            upstream/MINDO_V4_SOURCE_DIFF.patch
+          if-no-files-found: error
+          retention-days: 7
