@@ -65,7 +65,18 @@ once("    // MARK: hero\n",
 
     // MARK: hero
 """)
+once("                    diagnosticsCard\n                    gameList\n                    hint\n                    telegramCard\n",
+     "                    diagnosticsCard\n")
 p.write_text(s,encoding="utf-8")
+# Disable on-start write probes and legacy file cleanup in this diagnostic build.
+app=root/"BolaMinhDuc/App/AppModel.swift"
+a=app.read_text(encoding="utf-8")
+if a.count('if !UserDefaults.standard.bool(forKey: "bola_legacy_cleaned_v213") {')!=1:raise RuntimeError("Legacy cleanup changed")
+a=a.replace('if !UserDefaults.standard.bool(forKey: "bola_legacy_cleaned_v213") {','if false && !UserDefaults.standard.bool(forKey: "bola_legacy_cleaned_v213") {')
+needle='statusText = "Thử giao diện: INJECT chưa được kiểm chứng"\\n        refreshInstalled()'
+if a.count(needle)!=1:raise RuntimeError("V4 bootstrap changed")
+a=a.replace(needle,'statusText = "Kiểm tra chỉ đọc — không can thiệp game"')
+app.write_text(a,encoding="utf-8")
 # Change the identifier and display name from the base UI preview.
 proj=root/"project.yml"
 txt=proj.read_text(encoding="utf-8")
