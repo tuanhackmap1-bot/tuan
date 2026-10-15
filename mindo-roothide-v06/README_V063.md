@@ -1,0 +1,2 @@
+# MinDo RootHide v0.6.3 experiment
+Build-only source: updated compact in-game configuration menu and guarded creation of missing `bolacfg.bin`. Source patch: `patch_v063.diff.gz` gzip compressed unified diff applied after `patch_v062.diff`. The original game patch, license, token, Aimbot and ESP rendering algorithms are NOT included. `Aim: ON` only confirms the configuration flag was saved, not that Aim functions in-game. Does not bypass jailbreak hiding or anti-cheat. Never overwrite invalid existing configs. Runtime testing on iOS 16.0–16.5 is pending.

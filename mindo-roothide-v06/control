@@ -1,8 +1,8 @@
 Package: com.mindo.roothide.configoverlay
-Name: MinDo Aim ESP Config Overlay (Experimental)
-Version: 0.6.2
+Name: MinDo Config Overlay (Experimental)
+Version: 0.6.3
 Architecture: iphoneos-arm64e
-Maintainer: MinDo Community Testing
+Maintainer: MinDo Community
 Section: Tweaks
 Priority: optional
-Description: Experimental RootHide menu for installed MinDo config for original personalized MinDo patch. Controls configuration of an existing personalized MinDo patch; does not include Aim/ESP algorithms or ensure compatibility.
+Description: Smaller experimental overlay that writes Aim and ESP configuration for a previously activated personalized MinDo patch. Does not contain cheat algorithms or bypass game detection.
