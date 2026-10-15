@@ -1,0 +1,47 @@
+--- MinDoOverlay.c
++++ MinDoOverlay.c
+@@ -45,6 +45,7 @@
+ static id gCfgStatus, gAimBtn, gBoxBtn, gLineBtn, gBoneBtn;
+ static unsigned char gCfg[24];
+ static int gCfgValid=0;
++static int gPatchPresent=0;
+ static int gShowReticle=0;
+ static int gShowFps=1;
+ static unsigned long gFrames=0;
+@@ -87,6 +88,15 @@
+     unsigned int crc=cfgCRC(out,24);
+     for(int i=0;i<4;i++)out[24+i]=(unsigned char)((crc>>(8*i))&0xff);
+ }
++static int patchPresent(void){
++    // A config file alone cannot prove an Aim/ESP patch is installed.
++    // Check the existing installed patch in the game's OWN sandbox.
++    id home=NSHomeDirectory();
++    if(!home)return 0;
++    id p=OBJ1(home,"stringByAppendingPathComponent:",str("Documents/Assembly-CSharp-patch.bytes"));
++    id manager=OBJ0(CLASS("NSFileManager"),"defaultManager");
++    return manager && ((int(*)(id,SEL,id))objc_msgSend)(manager,SELN("fileExistsAtPath:"),p);
++}
+ static int cfgRead(void){
+     id p=cfgPath();
+     if(!p)return 0;
+@@ -117,14 +127,19 @@
+     if(b) ((void(*)(id,SEL,id,long))objc_msgSend)(b,SELN("setTitle:forState:"),str(s),0);
+ }
+ static void cfgRefresh(void){
++    gPatchPresent=patchPresent();
+     gCfgValid=cfgRead();
++    // Upstream may delete the patch file after loading it into RAM.
++    // Do NOT disable an otherwise valid configuration if that file was cleaned up.
+     if(!gCfgValid){
+         if(gCfgStatus)VOID1(gCfgStatus,"setText:",str("Chưa có cấu hình MinDo hợp lệ. INJECT bằng IPA trước."));
+         setBtnTitle(gAimBtn,"Aim: —");setBtnTitle(gBoxBtn,"ESP Box: —");
+         setBtnTitle(gLineBtn,"ESP Line: —");setBtnTitle(gBoneBtn,"ESP Bone: —");
+         return;
+     }
+-    if(gCfgStatus)VOID1(gCfgStatus,"setText:",str("Đã đọc bolacfg.bin • chỉnh trực tiếp trong game"));
++    if(gCfgStatus)VOID1(gCfgStatus,"setText:",str(gPatchPresent ?
++        "Config hợp lệ; patch có trên đĩa (chưa xác minh chạy)" :
++        "Config hợp lệ; patch có thể đã nạp RAM và được dọn"));
+     setBtnTitle(gAimBtn,(gCfg[7]&1)?"Aim: ON":"Aim: OFF");
+     setBtnTitle(gBoxBtn,(gCfg[5]&1)?"ESP Box: ON":"ESP Box: OFF");
+     setBtnTitle(gLineBtn,(gCfg[5]&2)?"ESP Line: ON":"ESP Line: OFF");

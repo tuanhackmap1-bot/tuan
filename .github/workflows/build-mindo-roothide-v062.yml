@@ -1,0 +1,46 @@
+name: Build MinDo RootHide v06.2 (experimental)
+on:
+  push:
+    branches: [mindo-roothide-v06-build]
+    paths:
+      - '.github/workflows/build-mindo-roothide-v062.yml'
+      - 'mindo-roothide-v06/**'
+  workflow_dispatch:
+jobs:
+  package:
+    runs-on: macos-15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup RootHide Theos
+        uses: iossxx/theos-action@760b7475c8b98f4d8fd8d52735728e22186b2aeb
+        with:
+          theos-dir: theos
+          theos-src: https://github.com/roothide/theos
+          theos-sdks: https://github.com/theos/sdks
+          orion: 'false'
+      - name: Validate and build RootHide v0.6.2 DEB
+        shell: bash
+        env:
+          THEOS: ${{ github.workspace }}/theos
+        run: |
+          set -euxo pipefail
+          cd mindo-roothide-v06
+          gzip -dc MinDoOverlay.c.gz > MinDoOverlay.c
+          patch -p0 < patch_v062.diff
+          echo "a26b48b968b71e26da3faae33235aee22d6597c12521dc64f75644aac4fda817  MinDoOverlay.c" | shasum -a 256 -c -
+          python3 tests/test_config.py
+          python3 tests/test_overlay_static.py
+          plutil -lint MinDoOverlay.plist
+          make clean package THEOS_PACKAGE_SCHEME=roothide FINALPACKAGE=1
+          echo "DEB files:"
+          find packages -maxdepth 1 -type f -name '*.deb' -print
+          test "$(find packages -maxdepth 1 -type f -name '*.deb' | wc -l | tr -d ' ')" -gt 0
+      - name: Upload experimental DEB
+        uses: actions/upload-artifact@v4
+        with:
+          name: MinDo-RootHide-v062-DEB-candidate
+          path: mindo-roothide-v06/packages/*.deb
+          if-no-files-found: error
