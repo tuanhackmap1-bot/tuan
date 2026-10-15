@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup RootHide Theos
-        uses: iossxx/theos-action@v1
+        uses: iossxx/theos-action@760b7475c8b98f4d8fd8d52735728e22186b2aeb
         with:
           theos-dir: theos
           theos-src: https://github.com/roothide/theos
