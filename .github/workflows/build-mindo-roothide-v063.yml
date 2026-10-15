@@ -1,7 +1,7 @@
 name: Build MinDo RootHide v0.6.3 (experimental)
 on:
   push:
-    branches: [mindo-roothide-v06-build]
+    branches: [mindo-roothide-v063-test]
     paths:
       - '.github/workflows/build-mindo-roothide-v063.yml'
       - 'mindo-roothide-v06/**'
