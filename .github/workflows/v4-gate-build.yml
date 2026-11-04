@@ -17,9 +17,8 @@ jobs:
       - name: Install APK packaging tools
         shell: bash
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq apktool
-          command -v apktool
+          curl -fsSL --retry 2 -o /tmp/apktool.jar https://github.com/iBotPeaches/Apktool/releases/download/v3.0.3/apktool_3.0.3.jar
+          java -jar /tmp/apktool.jar --version
           command -v javac
           echo "Android SDK: $ANDROID_HOME"
       - name: Build and verify APK (not emulator tested)
@@ -36,7 +35,7 @@ jobs:
           print("ORIGINAL_SHA256",h,flush=True)
           assert h=="b3367ab7c22983ae59027668d5b82d4013da989844747755872b0cfcf7a7bbd5", "Unexpected public APK revision"
           PY
-          apktool d -f -r -s /tmp/v4-original.apk -o /tmp/v4-raw
+          java -jar /tmp/apktool.jar d -f -s /tmp/v4-original.apk -o /tmp/v4-raw
           python3 - <<'PY'
           import pathlib,xml.etree.ElementTree as E
           file=pathlib.Path("/tmp/v4-raw/AndroidManifest.xml")
@@ -67,7 +66,7 @@ jobs:
           SDK_PLATFORM="$(find "$ANDROID_HOME/platforms" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n 1)"
           javac -source 8 -target 8 -cp "$SDK_PLATFORM/android.jar" -d /tmp/v4-classes v4/KeyActivity.java
           "$SDK_BUILD/d8" --min-api 21 --lib "$SDK_PLATFORM/android.jar" --output /tmp/v4-newdex /tmp/v4-classes/com/vtuan/gate/KeyActivity.class
-          apktool b /tmp/v4-raw -o /tmp/v4-before-dex.apk
+          java -jar /tmp/apktool.jar b /tmp/v4-raw -o /tmp/v4-before-dex.apk
           python3 - <<'PY'
           import zipfile,hashlib,pathlib
           with zipfile.ZipFile("/tmp/v4-before-dex.apk","r") as inp:
