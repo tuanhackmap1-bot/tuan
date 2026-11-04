@@ -87,6 +87,14 @@ jobs:
                           except ValueError:pass
                           break
               print('URL_EXACT_REFS',[(hex(a),hex(b),c) for a,b,c in exact])
+              if exact:
+                  address=exact[0][0]
+                  off=next((lo+address-va for lo,hi,va in executable if va<=address<va+hi-lo),None)
+                  start=off-0x150;end=off+0x230
+                  print('AUTH_SITE_ASM')
+                  for ins in cs.disasm(b[start:end],address-0x150):
+                      print('AUTH_INSTRUCTION',hex(ins.address),ins.mnemonic,ins.op_str)
+                  print('AUTH_STRINGS_NEAR_URL',repr(b[indices[0]-180:indices[0]+200]))
               for address,opcode,args in refs[:15]:
                   offset=next((lo+address-va for lo,hi,va in executable if va<=address<va+hi-lo),None)
                   if offset is None:continue
