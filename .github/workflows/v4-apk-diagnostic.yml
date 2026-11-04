@@ -1,0 +1,58 @@
+name: V4 APK library diagnostics
+on:
+  push:
+    branches: [vtuan-v4-apk-diagnostics]
+    paths:
+      - .github/workflows/v4-apk-diagnostic.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Download public V4 APK and inspect ZIP without executing it
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, pathlib, urllib.request, zipfile, sys
+          url = "https://appinstall.cloud/package-cache/7jbdxgs77777/nmj0zeu-f3523-fast.apk?pcv=20260910-direct-cdn-v1&r2p=1"
+          path = pathlib.Path("/tmp/v4.apk")
+          req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0"})
+          h = hashlib.sha256()
+          count = 0
+          try:
+              with urllib.request.urlopen(req, timeout=60) as src, path.open("wb") as dst:
+                  while True:
+                      block = src.read(1024*1024)
+                      if not block: break
+                      count += len(block)
+                      if count > 350_000_000: raise RuntimeError("download exceeds 350 MB")
+                      h.update(block); dst.write(block)
+          except Exception as e:
+              print("DOWNLOAD_ERROR", type(e).__name__, str(e), flush=True)
+              sys.exit(1)
+          print("APK_BYTES", count, "SHA256", h.hexdigest(), flush=True)
+          if not zipfile.is_zipfile(path):
+              sys.exit("NOT_A_ZIP_APK")
+          with zipfile.ZipFile(path) as z:
+              names = z.namelist()
+              print("ZIP_ENTRIES", len(names))
+              libs = [x for x in names if x.startswith("lib/") and x.endswith(".so")]
+              print("NATIVE_LIBRARIES", json.dumps(libs, ensure_ascii=False))
+              print("DEX_FILES", json.dumps([x for x in names if x.endswith(".dex")]))
+              print("LIB_GCLOUD_PRESENT", any(x.endswith("/libgcloud.so") for x in libs))
+              print("LIB_YSMTEAM_PRESENT", any(x.endswith("/libysmteam.so") for x in libs))
+              print("CORRUPT_ENTRY", z.testzip())
+              for name in libs:
+                  if "ysmteam" in name.lower() or "gcloud" in name.lower():
+                      info = z.getinfo(name)
+                      b = z.read(name)
+                      print("CANDIDATE", name, "BYTES", len(b),
+                            "SHA256", hashlib.sha256(b).hexdigest(),
+                            "ELF", b[:4] == b"\\x7fELF",
+                            "EMBEDDED_DEX_COUNT", b.count(b"dex\\n"))
+                      for marker in [b"nativeDangNhap", b"nativeHanDung", b"XacThuc",
+                                     b"libgcloud.so", b"getkey", b"/api/activate"]:
+                          print("STRING_PRESENT", name, marker.decode(), marker in b)
+          PY
