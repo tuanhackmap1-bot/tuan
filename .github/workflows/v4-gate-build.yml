@@ -1,0 +1,102 @@
+name: Build VTUAN V4 activation prototype
+on:
+  push:
+    branches: [vtuan-v4-apk-diagnostics]
+    paths:
+      - .github/workflows/v4-gate-build.yml
+      - v4/KeyActivity.java
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install APK packaging tools
+        shell: bash
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq apktool
+          command -v apktool
+          command -v javac
+          echo "Android SDK: $ANDROID_HOME"
+      - name: Build and verify APK (not emulator tested)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib,hashlib,urllib.request
+          u="https://appinstall.cloud/package-cache/7jbdxgs77777/nmj0zeu-f3523-fast.apk?pcv=20260910-direct-cdn-v1&r2p=1"
+          p=pathlib.Path("/tmp/v4-original.apk")
+          with urllib.request.urlopen(urllib.request.Request(u,headers={"User-Agent":"Mozilla/5.0"}),timeout=60) as r,p.open("wb") as f:
+              while b:=r.read(1048576):f.write(b)
+          h=hashlib.sha256(p.read_bytes()).hexdigest()
+          print("ORIGINAL_SHA256",h,flush=True)
+          assert h=="b3367ab7c22983ae59027668d5b82d4013da989844747755872b0cfcf7a7bbd5", "Unexpected public APK revision"
+          PY
+          apktool d -f -r -s /tmp/v4-original.apk -o /tmp/v4-raw
+          python3 - <<'PY'
+          import pathlib,xml.etree.ElementTree as E
+          file=pathlib.Path("/tmp/v4-raw/AndroidManifest.xml")
+          s=file.read_text(encoding="utf8")
+          print("MANIFEST_SOURCE_BYTES",len(s),s[:140].replace("\n"," "))
+          ns="http://schemas.android.com/apk/res/android"; E.register_namespace("android",ns)
+          a="{"+ns+"}"
+          tree=E.parse(file)
+          root=tree.getroot()
+          app=root.find("application")
+          if app is None: raise RuntimeError("Missing <application>")
+          existing=[x for x in app.findall("activity") if x.get(a+"name")=="com.garena.game.kgtw.SGameActivity"]
+          if len(existing)!=1: raise RuntimeError("SGameActivity not found exactly once")
+          launch=existing[0]
+          gate=E.Element("activity",{a+"name":"com.vtuan.gate.KeyActivity",a+"exported":"true",a+"screenOrientation":"landscape",a+"theme":"@android:style/Theme.Material.NoActionBar"})
+          filters=[]
+          for item in list(launch.findall("intent-filter")):
+              has_main=any(x.get(a+"name")=="android.intent.action.MAIN" for x in item.findall("action"))
+              if has_main:
+                  launch.remove(item);gate.append(item);filters.append(item)
+          if len(filters)!=1: raise RuntimeError("Expected one original MAIN launcher filter, found "+str(len(filters)))
+          app.insert(list(app).index(launch),gate)
+          tree.write(file,encoding="utf-8",xml_declaration=True)
+          print("MANIFEST_PATCHED",gate.attrib,"FILTERS_MOVED",len(filters),flush=True)
+          PY
+          mkdir -p /tmp/v4-classes /tmp/v4-newdex
+          SDK_BUILD="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n 1)"
+          SDK_PLATFORM="$(find "$ANDROID_HOME/platforms" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n 1)"
+          javac -source 8 -target 8 -cp "$SDK_PLATFORM/android.jar" -d /tmp/v4-classes v4/KeyActivity.java
+          "$SDK_BUILD/d8" --min-api 21 --lib "$SDK_PLATFORM/android.jar" --output /tmp/v4-newdex /tmp/v4-classes/com/vtuan/gate/KeyActivity.class
+          apktool b /tmp/v4-raw -o /tmp/v4-before-dex.apk
+          python3 - <<'PY'
+          import zipfile,hashlib,pathlib
+          with zipfile.ZipFile("/tmp/v4-before-dex.apk","r") as inp:
+              if "classes7.dex" in inp.namelist():raise RuntimeError("classes7.dex already exists")
+          pathlib.Path("/tmp/v4-with-dex.apk").write_bytes(pathlib.Path("/tmp/v4-before-dex.apk").read_bytes())
+          with zipfile.ZipFile("/tmp/v4-with-dex.apk","a") as out:
+              out.write("/tmp/v4-newdex/classes.dex","classes7.dex",compress_type=zipfile.ZIP_DEFLATED)
+          with zipfile.ZipFile("/tmp/v4-original.apk","r") as orig,zipfile.ZipFile("/tmp/v4-with-dex.apk","r") as built:
+              must_keep=[n for n in orig.namelist() if n.startswith("lib/") or n.endswith(".dex")]
+              changed=[]
+              for n in must_keep:
+                  if n not in built.namelist() or hashlib.sha256(orig.read(n)).digest()!=hashlib.sha256(built.read(n)).digest():
+                      changed.append(n)
+              print("ORIGINAL_LIB_DEX_COUNT",len(must_keep),"CHANGED_OR_MISSING",changed[:25])
+              if changed:raise RuntimeError("Native libraries or original dex altered")
+              assert "classes7.dex" in built.namelist()
+              assert built.testzip() is None
+          PY
+          "$SDK_BUILD/zipalign" -f -p 4 /tmp/v4-with-dex.apk /tmp/v4-aligned.apk
+          keytool -genkeypair -alias vtuan-test -keystore /tmp/v4-test.jks -storepass "test-store-2026" -keypass "test-store-2026" -keyalg RSA -keysize 2048 -validity 3650 -dname "CN=V4 Test Build" -noprompt
+          "$SDK_BUILD/apksigner" sign --ks /tmp/v4-test.jks --ks-key-alias vtuan-test --ks-pass pass:test-store-2026 --key-pass pass:test-store-2026 --out VTUAN_V4_ACTIVATION_TEST.apk /tmp/v4-aligned.apk
+          "$SDK_BUILD/apksigner" verify -v VTUAN_V4_ACTIVATION_TEST.apk
+          "$SDK_BUILD/aapt" dump badging VTUAN_V4_ACTIVATION_TEST.apk | grep -E 'package:|launchable-activity:|native-code:'
+          ls -lh VTUAN_V4_ACTIVATION_TEST.apk
+          sha256sum VTUAN_V4_ACTIVATION_TEST.apk
+      - name: Upload test APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VTUAN_V4_ACTIVATION_TEST
+          path: VTUAN_V4_ACTIVATION_TEST.apk
+          retention-days: 3
+          if-no-files-found: error
