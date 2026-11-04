@@ -1,0 +1,44 @@
+name: Inspect V4 launcher and menu
+on:
+  push:
+    branches: [vtuan-v4-apk-diagnostics]
+    paths:
+      - .github/workflows/v4-apk-launcher.yml
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Inspect V4 manifest, DEX, and JNI symbols
+        run: |
+          python3 - <<'PY'
+          import hashlib, pathlib, urllib.request, zipfile, subprocess, re, os
+          u="https://appinstall.cloud/package-cache/7jbdxgs77777/nmj0zeu-f3523-fast.apk?pcv=20260910-direct-cdn-v1&r2p=1"
+          req=urllib.request.Request(u,headers={"User-Agent":"Mozilla/5.0"})
+          p=pathlib.Path("/tmp/v4.apk")
+          with urllib.request.urlopen(req,timeout=60) as r,p.open("wb") as f:
+              while b:=r.read(1024*1024): f.write(b)
+          print("APK_SHA256",hashlib.sha256(p.read_bytes()).hexdigest(),flush=True)
+          sdk=os.getenv("ANDROID_HOME") or os.getenv("ANDROID_SDK_ROOT")
+          print("ANDROID_SDK",sdk)
+          tool=next(iter(sorted(pathlib.Path(sdk,"build-tools").glob("*/aapt"),reverse=True)),None) if sdk else None
+          if tool:
+              run=subprocess.run([str(tool),"dump","badging",str(p)],capture_output=True,text=True)
+              print("AAPT_BADGING",run.stdout[:4500],run.stderr[:700],flush=True)
+              run=subprocess.run([str(tool),"dump","xmltree",str(p),"AndroidManifest.xml"],capture_output=True,text=True)
+              print("AAPT_MANIFEST",run.stdout[:15000],run.stderr[:500],flush=True)
+          with zipfile.ZipFile(p) as z:
+              for name in ["classes5.dex","classes6.dex"]:
+                  if name not in z.namelist(): continue
+                  b=z.read(name)
+                  ascii_words=re.findall(rb"[\x20-\x7e]{5,}",b)
+                  interesting=[w.decode("utf8","replace") for w in ascii_words if any(k in w.lower() for k in (b"ysm",b"imgui",b"launcher",b"login",b"key",b"activity",b"menu",b"native",b"auth"))]
+                  print("DEX_STRINGS",name,interesting[:100])
+              b=z.read("lib/arm64-v8a/libysmteam.so")
+              tmp=pathlib.Path("/tmp/libysmteam.so");tmp.write_bytes(b)
+              r=subprocess.run(["readelf","-Ws",str(tmp)],capture_output=True,text=True)
+              syms=[line for line in r.stdout.splitlines() if ("Java_com_" in line or "JNI_OnLoad" in line)]
+              print("JNI_SYMBOLS",syms[:65])
+          PY
