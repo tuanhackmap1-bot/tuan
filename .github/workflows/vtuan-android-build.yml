@@ -26,12 +26,10 @@ jobs:
           test -n "$SDKM"
           yes | "$SDKM" --licenses >/dev/null || true
           "$SDKM" 'platforms;android-35' 'build-tools;35.0.0'
-      - name: Extract application project
-        run: mkdir -p vtuan_android/code && unzip -t vtuan_android/app-source.zip && unzip vtuan_android/app-source.zip -d vtuan_android/code
       - name: Build APK
-        run: gradle --no-daemon -p vtuan_android/code assembleDebug
+        run: gradle --no-daemon -p vtuan_android assembleDebug
       - uses: actions/upload-artifact@v4
         with:
           name: VTUAN-ANDROID-V1-3-APK
-          path: vtuan_android/code/app/build/outputs/apk/debug/app-debug.apk
+          path: vtuan_android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
