@@ -1,0 +1,43 @@
+name: Inspect V4 auth and resource archive
+on:
+  push:
+    branches: [vtuan-v4-apk-diagnostics]
+    paths:
+      - .github/workflows/v4-apk-auth.yml
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Inspect library strings and resources offline
+        run: |
+          python3 - <<'PY'
+          import urllib.request, pathlib,zipfile,subprocess,re,hashlib,collections
+          u="https://appinstall.cloud/package-cache/7jbdxgs77777/nmj0zeu-f3523-fast.apk?pcv=20260910-direct-cdn-v1&r2p=1"
+          r=urllib.request.urlopen(urllib.request.Request(u,headers={"User-Agent":"Mozilla/5.0"}),timeout=60)
+          p=pathlib.Path("/tmp/base.apk")
+          with r,p.open("wb") as f:
+              while b:=r.read(1048576):f.write(b)
+          with zipfile.ZipFile(p) as z:
+              entries={x.rsplit("/",1)[-1]:x for x in z.namelist() if x.startswith("lib/") and x.endswith(".so")}
+              for so in ["libysmteam.so","libResources.so"]:
+                  b=z.read(entries[so])
+                  q=pathlib.Path("/tmp")/so;q.write_bytes(b)
+                  print("FILE",so,"MAGIC",b[:16].hex(),"SHA256",hashlib.sha256(b).hexdigest())
+                  if so=="libysmteam.so":
+                      s=subprocess.run(["strings","-a","-n","6",str(q)],capture_output=True,text=True).stdout.splitlines()
+                      matched=[x[:160] for x in s if re.search(r"\b(activate|activation|license|licence|expired?|verify|login|key\s|token|auth)\b",x,re.I)]
+                      print("AUTH_STRINGS",matched[:100])
+                      domains=sorted(set(re.findall(r"https?://([a-zA-Z0-9][a-zA-Z0-9.-]{2,100})", "\n".join(s))))
+                      print("URL_DOMAINS",domains[:60])
+                  else:
+                      print("RESOURCE_IS_7Z",b.startswith(bytes.fromhex("377abcaf271c")))
+                      print("RESOURCE_IS_ZIP",b.startswith(b"PK"))
+          PY
+          if command -v 7z >/dev/null; then
+            7z l /tmp/libResources.so | tail -35 || true
+          else
+            echo "7z command unavailable"
+          fi
