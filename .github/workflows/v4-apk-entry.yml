@@ -1,0 +1,39 @@
+name: V4 launcher details
+on:
+  push:
+    branches: [vtuan-v4-apk-diagnostics]
+    paths:
+      - .github/workflows/v4-apk-entry.yml
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Inspect manifest launch entry and menu strings
+        run: |
+          python3 - <<'PY'
+          import pathlib,urllib.request,zipfile,subprocess,re,os
+          url="https://appinstall.cloud/package-cache/7jbdxgs77777/nmj0zeu-f3523-fast.apk?pcv=20260910-direct-cdn-v1&r2p=1"
+          p=pathlib.Path("/tmp/app.apk")
+          with urllib.request.urlopen(urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0"}),timeout=60) as r,p.open("wb") as f:
+              while b:=r.read(1048576):f.write(b)
+          root=pathlib.Path(os.environ["ANDROID_HOME"])/"build-tools"
+          aapt=sorted(root.glob("*/aapt"),reverse=True)[0]
+          v=subprocess.run([str(aapt),"dump","badging",str(p)],capture_output=True,text=True).stdout
+          for line in v.splitlines():
+              if any(x in line for x in ("package:", "launchable-activity", "native-code:", "sdkVersion:", "targetSdkVersion:")):
+                  print("BADGING",line)
+          m=subprocess.run([str(aapt),"dump","xmltree",str(p),"AndroidManifest.xml"],capture_output=True,text=True).stdout.splitlines()
+          for i,line in enumerate(m):
+              if any(x in line for x in ("E: activity (","E: activity-alias (","E: application (","android:extractNativeLibs","android.intent.action.MAIN","android.intent.category.LAUNCHER")):
+                  print("MANIFEST_LINE",i," ".join(q.strip() for q in m[max(0,i-3):i+8]))
+          with zipfile.ZipFile(p) as z:
+              for name in [x for x in z.namelist() if x.endswith(".dex")]:
+                  b=z.read(name)
+                  needle=[b"ysmteam",b"imgui",b"UIThread",b"MainActivity",b"SGameRealActivity",b"libgcloud",b"nativeDangNhap",b"GLES3JNIView"]
+                  print("DEX_MARKERS",name,[(n.decode(),b.count(n)) for n in needle])
+                  if name.endswith("classes6.dex"):
+                      print("DEX6_NAMES",[x.decode("ascii","replace") for x in re.findall(rb"L[a-zA-Z0-9_/$-]{8,};",b)[:90]])
+          PY
