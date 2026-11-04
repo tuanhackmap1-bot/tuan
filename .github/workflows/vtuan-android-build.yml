@@ -42,6 +42,10 @@ jobs:
               dest.parent.mkdir(parents=True,exist_ok=True)
               dest.write_bytes(zlib.decompress(raw))
           PY
+      - name: Prepare V1.4 Gradle version for upgrader
+        run: |
+          cp vtuan_android/app/build.gradle /tmp/vtuan_v16_build.gradle
+          sed -i -e 's/versionCode 7/versionCode 5/' -e "s/versionName '1.6'/versionName '1.4'/" vtuan_android/app/build.gradle
       - name: Upgrade V1.5
         run: |
           python3 - <<'PY'
@@ -72,6 +76,7 @@ jobs:
           PY
           git apply --check vtuan_android/tools/upgrade_v16.patch
           git apply vtuan_android/tools/upgrade_v16.patch
+          cp /tmp/vtuan_v16_build.gradle vtuan_android/app/build.gradle
           grep -q 'PHIÊN BẢN 1.6' vtuan_android/app/src/main/java/com/vtuan/lqmenu/MainActivity.java
           grep -q 'Bật menu nổi VTUAN' vtuan_android/app/src/main/java/com/vtuan/lqmenu/MainActivity.java
           grep -q "versionName '1.6'" vtuan_android/app/build.gradle
