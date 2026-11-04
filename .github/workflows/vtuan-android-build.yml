@@ -1,4 +1,4 @@
-name: Build VTUAN Android v1.4 APK
+name: Build VTUAN Android v1.5 APK
 on:
   workflow_dispatch:
   push:
@@ -26,7 +26,7 @@ jobs:
           test -n "$SDKM"
           yes | "$SDKM" --licenses >/dev/null || true
           "$SDKM" 'platforms;android-35' 'build-tools;35.0.0'
-      - name: Unpack and verify V1.4 source
+      - name: Unpack V1.4 baseline and verify hashes
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -36,19 +36,30 @@ jobs:
               ('MainActivity.java','3ebc531c57ac8d3e32f2cc27fa9a2ecd87743b092dd420f4da17e585492a4e06'),
               ('SecureKeyStore.java','d4c0157672f42a012811205834fd906245ae071da33551676d1fb1a10c2616e1')
           ]:
-              src=root/'source_v1_4'/(name+'.z')
-              raw=src.read_bytes()
-              assert hashlib.sha256(raw).hexdigest()==checksum, f'bad packed source: {name}'
+              raw=(root/'source_v1_4'/(name+'.z')).read_bytes()
+              assert hashlib.sha256(raw).hexdigest()==checksum, name
               java=zlib.decompress(raw)
               dest=root/'app/src/main/java/com/vtuan/lqmenu'/name
               dest.parent.mkdir(parents=True,exist_ok=True)
               dest.write_bytes(java)
-              print(name,len(java),'bytes, checksum OK')
+              print(name,len(java),'bytes, SHA-256 OK')
           PY
-      - name: Build V1.4 APK
+      - name: Upgrade UI to V1.5
+        run: |
+          python3 - <<'PY'
+          import hashlib,zlib
+          from pathlib import Path
+          data=Path('vtuan_android/tools/upgrade_v15.py.z').read_bytes()
+          assert hashlib.sha256(data).hexdigest()=='a2f1bae99d7d0367bb1e7cf8bcaefde69106f3e6fb092435eed13dea05ad7c7e'
+          Path('vtuan_android/tools/upgrade_v15.py').write_bytes(zlib.decompress(data))
+          PY
+          python3 vtuan_android/tools/upgrade_v15.py vtuan_android
+          grep -q 'PHIÊN BẢN 1.5' vtuan_android/app/src/main/java/com/vtuan/lqmenu/MainActivity.java
+          grep -q "versionName '1.5'" vtuan_android/app/build.gradle
+      - name: Build V1.5 APK
         run: gradle --no-daemon -p vtuan_android assembleDebug
       - uses: actions/upload-artifact@v4
         with:
-          name: VTUAN-ANDROID-V1-4-APK
+          name: VTUAN-ANDROID-V1-5-APK
           path: vtuan_android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error

@@ -1,12 +1,8 @@
-# VTUAN Android v1.4 — APK key độc lập
-
-V1.4 triển khai Android Keystore AES/GCM để lưu key, che thông tin khi nhập, thử lại khi mất mạng, và hiển thị rõ hơn trạng thái server.
-
-## Source packaging
-Để đảm bảo nội dung nguồn được chuyển nguyên vẹn tới CI, hai Java source V1.4 được lưu dưới dạng zlib có kiểm tra SHA256 trong `vtuan_android/source_v1_4/`. Workflow giải nén chúng vào `vtuan_android/app/src/main/java/com/vtuan/lqmenu/` trước khi build. Có thể xem mã nguồn thuần trong file `VTUAN_ANDROID_V1_4_SOURCE.zip` đi kèm hội thoại.
-
-## Chú ý
-Ứng dụng này **không phải APK Liên Quân chỉnh sửa** và không tích hợp ESP/AIM hoặc thư viện menu native vào game. Server V10 không cung cấp ràng buộc thiết bị (machine code) qua hai API hiện hữu. Chưa có kiểm thử thực tế trên điện thoại.
-
-## APK
-Artifacts tại GitHub Actions, nhánh `vtuan-android-build`. Android 6.0 trở lên. APK debug được ký theo runner, có thể cần gỡ bản debug cũ trước khi cài do khác chữ ký; hãy giữ lại key ở nơi an toàn trước khi gỡ.
+# VTUAN Android v1.5
+Build riêng trên nhánh vtuan-android-build. APK là ứng dụng key VTUAN độc lập, **không phải APK game Liên Quân đã tích hợp menu**.
+- Nguồn v1.4 được đóng gói tại source_v1_4/*.z với SHA-256 kiểm chứng.
+- File tools/upgrade_v15.py.z chứa patch v1.5, có SHA-256 kiểm chứng trước khi áp dụng.
+- Bản mã nguồn đã patch đầy đủ có trong VTUAN_ANDROID_V1_5_SOURCE.zip.
+- V1.5 thêm GET /healthz kiểm tra máy chủ mà không gửi key; không nhầm tình trạng máy chủ với key hợp lệ.
+- Android 6.0+, target 34, compile 35, JDK 17, Gradle 8.9.
+- Debug APK có thể không cài đè được bản trước do khóa ký debug khác nhau giữa runner.
