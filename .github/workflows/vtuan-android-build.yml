@@ -1,4 +1,4 @@
-name: Build VTUAN Android v1.5 APK
+name: Build VTUAN Android v1.6 overlay APK
 on:
   workflow_dispatch:
   push:
@@ -26,7 +26,7 @@ jobs:
           test -n "$SDKM"
           yes | "$SDKM" --licenses >/dev/null || true
           "$SDKM" 'platforms;android-35' 'build-tools;35.0.0'
-      - name: Unpack V1.4 baseline and verify hashes
+      - name: Unpack baseline V1.4 and verify integrity
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -38,28 +38,54 @@ jobs:
           ]:
               raw=(root/'source_v1_4'/(name+'.z')).read_bytes()
               assert hashlib.sha256(raw).hexdigest()==checksum, name
-              java=zlib.decompress(raw)
               dest=root/'app/src/main/java/com/vtuan/lqmenu'/name
               dest.parent.mkdir(parents=True,exist_ok=True)
-              dest.write_bytes(java)
-              print(name,len(java),'bytes, SHA-256 OK')
+              dest.write_bytes(zlib.decompress(raw))
           PY
-      - name: Upgrade UI to V1.5
+      - name: Upgrade V1.5
         run: |
           python3 - <<'PY'
           import hashlib,zlib
           from pathlib import Path
-          data=Path('vtuan_android/tools/upgrade_v15.py.z').read_bytes()
-          assert hashlib.sha256(data).hexdigest()=='a2f1bae99d7d0367bb1e7cf8bcaefde69106f3e6fb092435eed13dea05ad7c7e'
-          Path('vtuan_android/tools/upgrade_v15.py').write_bytes(zlib.decompress(data))
+          blob=Path('vtuan_android/tools/upgrade_v15.py.z').read_bytes()
+          assert hashlib.sha256(blob).hexdigest()=='a2f1bae99d7d0367bb1e7cf8bcaefde69106f3e6fb092435eed13dea05ad7c7e'
+          Path('vtuan_android/tools/upgrade_v15.py').write_bytes(zlib.decompress(blob))
           PY
           python3 vtuan_android/tools/upgrade_v15.py vtuan_android
           grep -q 'PHIÊN BẢN 1.5' vtuan_android/app/src/main/java/com/vtuan/lqmenu/MainActivity.java
-          grep -q "versionName '1.5'" vtuan_android/app/build.gradle
-      - name: Build V1.5 APK
+      - name: Upgrade V1.6 floating overlay
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import zlib,hashlib
+          base=Path('vtuan_android')
+          specs=[
+              ('upgrade_v16.patch.z','839c4784fc47d9d68a305eb8bd3304f6a1d685a4f9bd606bae636012700a25e1','upgrade_v16.patch'),
+              ('OverlayService.java.z','3091013a86c3a3ba0858e3d3dc77030012c0b91f34d9c5e25e2de97e58cc76de','OverlayService.java')
+          ]
+          for file_name,sha,target in specs:
+              compressed=(base/'tools'/file_name).read_bytes()
+              assert hashlib.sha256(compressed).hexdigest()==sha, file_name+' failed SHA256'
+              destination=(base/'tools'/target) if target.endswith('.patch') else (base/'app/src/main/java/com/vtuan/lqmenu'/target)
+              destination.parent.mkdir(parents=True,exist_ok=True)
+              destination.write_bytes(zlib.decompress(compressed))
+          PY
+          git apply --check vtuan_android/tools/upgrade_v16.patch
+          git apply vtuan_android/tools/upgrade_v16.patch
+          grep -q 'PHIÊN BẢN 1.6' vtuan_android/app/src/main/java/com/vtuan/lqmenu/MainActivity.java
+          grep -q 'Bật menu nổi VTUAN' vtuan_android/app/src/main/java/com/vtuan/lqmenu/MainActivity.java
+          grep -q "versionName '1.6'" vtuan_android/app/build.gradle
+      - name: Build APK
         run: gradle --no-daemon -p vtuan_android assembleDebug
+      - name: Verify debug signing and manifest
+        run: |
+          SDK_ROOT="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          APK=vtuan_android/app/build/outputs/apk/debug/app-debug.apk
+          "$SDK_ROOT/build-tools/35.0.0/apksigner" verify --verbose "$APK"
+          "$SDK_ROOT/build-tools/35.0.0/aapt" dump badging "$APK" | head -30
+          unzip -t "$APK" | tail -1
       - uses: actions/upload-artifact@v4
         with:
-          name: VTUAN-ANDROID-V1-5-APK
+          name: VTUAN-ANDROID-V1-6-OVERLAY-APK
           path: vtuan_android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
