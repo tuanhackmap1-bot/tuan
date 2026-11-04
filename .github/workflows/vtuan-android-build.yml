@@ -22,8 +22,10 @@ jobs:
           gradle-version: '8.9'
       - name: Install Android SDK 35
         run: |
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+          SDKM=$(find "${ANDROID_HOME:-/usr/local/lib/android/sdk}/cmdline-tools" -type f -name sdkmanager | head -1)
+          test -n "$SDKM"
+          yes | "$SDKM" --licenses >/dev/null || true
+          "$SDKM" 'platforms;android-35' 'build-tools;35.0.0'
       - name: Extract application project
         run: mkdir -p vtuan_android/code && unzip -t vtuan_android/app-source.zip && unzip vtuan_android/app-source.zip -d vtuan_android/code
       - name: Build APK
