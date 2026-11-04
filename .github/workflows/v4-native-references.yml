@@ -71,6 +71,22 @@ jobs:
                               if (dst & ~4095) in target_pages:refs.append((ins.address,ins.mnemonic,ins.op_str))
                           except ValueError:pass
               print('PAGE_REFERENCES',[tuple(hex(x) if isinstance(x,int) else x for x in y) for y in refs[:80]],'TOTAL',len(refs))
+              # Verify precise URL references, not just the broad 4-KiB ADRP page.
+              exact=[]
+              for address,opcode,args in refs:
+                  if opcode!="adrp": continue
+                  reg=args.split(",")[0].strip()
+                  offset=next((lo+address-va for lo,hi,va in executable if va<=address<va+hi-lo),None)
+                  if offset is None:continue
+                  for op in cs.disasm(b[offset+4:offset+4+64],address+4):
+                      if op.mnemonic=="add" and op.op_str.startswith(reg+", "+reg+", "):
+                          try:
+                              imm=int(op.op_str.split("#")[-1],0)
+                              if ((address & ~4095) != 0 and imm == (urls[0]&4095)):
+                                  exact.append((address,op.address,op.op_str))
+                          except ValueError:pass
+                          break
+              print('URL_EXACT_REFS',[(hex(a),hex(b),c) for a,b,c in exact])
               for address,opcode,args in refs[:15]:
                   offset=next((lo+address-va for lo,hi,va in executable if va<=address<va+hi-lo),None)
                   if offset is None:continue
