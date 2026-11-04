@@ -1,0 +1,64 @@
+name: V4 library archive verification
+on:
+  push:
+    branches: [vtuan-v4-apk-diagnostics]
+    paths:
+      - .github/workflows/v4-archive-check.yml
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Inspect 7z resource pack and dex class list
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --quiet --disable-pip-version-check py7zr
+          python3 - <<'PY'
+          import urllib.request,zipfile,pathlib,hashlib,py7zr,re,struct
+          u='https://appinstall.cloud/package-cache/7jbdxgs77777/nmj0zeu-f3523-fast.apk?pcv=20260910-direct-cdn-v1&r2p=1'
+          req=urllib.request.Request(u,headers={'User-Agent':'Mozilla/5.0'})
+          p=pathlib.Path('/tmp/v4.apk')
+          with urllib.request.urlopen(req,timeout=60) as response,p.open('wb') as f:
+              while data:=response.read(2**20): f.write(data)
+          print('APK_SHA256',hashlib.sha256(p.read_bytes()).hexdigest())
+          with zipfile.ZipFile(p) as z:
+              b=z.read('lib/arm64-v8a/libResources.so')
+              pack=pathlib.Path('/tmp/resources.7z');pack.write_bytes(b)
+              print('RESOURCE_SIZE',len(b),'IS_7Z',py7zr.is_7zfile(pack))
+              try:
+                  with py7zr.SevenZipFile(pack,'r') as ar:
+                      names=ar.getnames()
+                      print('7Z_FILE_COUNT',len(names))
+                      print('7Z_SAMPLES',names[:40])
+                      print('7Z_GCLOUD',[x for x in names if 'gcloud' in x.lower()])
+                      print('7Z_NATIVE',[x for x in names if x.endswith('.so')][:120])
+              except Exception as ex:
+                  print('7Z_ERROR',type(ex).__name__,str(ex))
+              for fn in ('classes.dex','classes2.dex','classes3.dex','classes4.dex','classes5.dex','classes6.dex'):
+                  b=z.read(fn)
+                  print('DEX',fn,'BYTES',len(b),'MAGIC',b[:8].hex())
+                  terms=(b'ysmteam',b'GLES3JNIView',b'nativeDangNhap',b'com/ysmteam',b'com/android/support',b'libysmteam',b'libgcloud',b'XacThuc',b'auth',b'keymanager')
+                  print('DEX_TERMS',fn,[(x.decode(),b.lower().count(x.lower())) for x in terms])
+                  # DEX header: string_ids_size/file_off, type_ids_size/off, class_defs_size/off
+                  try:
+                      strings_size,strings_off=struct.unpack_from('<II',b,0x38)
+                      print('DEX_STRING_COUNT',fn,strings_size,'CLASS_DEF_COUNT',struct.unpack_from('<I',b,0x60)[0])
+                      if strings_size > 1000000:continue
+                      for k in range(strings_size):
+                          off=struct.unpack_from('<I',b,strings_off+k*4)[0]
+                          if off>=len(b):continue
+                          i=off
+                          while i<len(b) and b[i]&128:i+=1
+                          i+=1
+                          end=b.find(b'\x00',i,min(len(b),i+500))
+                          if end<0:continue
+                          val=b[i:end]
+                          if any(term in val.lower() for term in (b'ysmteam',b'imgui',b'gcloud',b'native',b'login',b'key',b'auth')):
+                              if fn in ('classes5.dex','classes6.dex') or b'ysmteam' in val.lower():
+                                  print('DEX_ID',fn,val.decode('utf8','replace')[:130])
+                  except Exception as ex:
+                      print('DEX_ERROR',type(ex).__name__,str(ex))
+          PY
