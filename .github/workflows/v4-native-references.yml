@@ -53,7 +53,12 @@ jobs:
                       if p<0: break
                       ptr_indices.append(p);p+=1
                   print('URL_POINTER_LOCATIONS',hex(va),[hex(x) for x in ptr_indices[:30]])
-              executable=[(lo,hi,va) for lo,hi,va,flags in mapping if flags & 1]
+              text_section=elf.get_section_by_name('.text')
+              print('TEXT_SECTION',repr(text_section))
+              if text_section is None:raise RuntimeError('Cannot locate ELF .text')
+              header=text_section.header
+              executable=[(header['sh_offset'],header['sh_offset']+header['sh_size'],header['sh_addr'])]
+              print('TEXT_BYTES',header['sh_size'])
               cs=Cs(CS_ARCH_ARM64,CS_MODE_ARM);cs.detail=False
               refs=[]
               target_pages={x & ~4095 for x in urls}
