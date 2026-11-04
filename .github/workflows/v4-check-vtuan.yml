@@ -24,4 +24,18 @@ jobs:
                   print("HEALTH_BODY",b.decode('utf-8','replace'))
           except Exception as e:
               print("HEALTH_ERROR",type(e).__name__,str(e))
+          url='https://vtuan-103-159-51-231.sslip.io/api/activate'
+          test=urllib.request.Request(url,
+              data=b'{"key":"vtuan-invalid-api-check-not-a-real-license"}',
+              headers={'Content-Type':'application/json; charset=utf-8'},
+              method='POST')
+          try:
+              with urllib.request.urlopen(test,timeout=10) as response:
+                  print("ACTIVATION_STATUS",response.status)
+                  print("ACTIVATION_BODY",response.read(1200).decode('utf-8','replace'))
+          except urllib.error.HTTPError as e:
+              print("ACTIVATION_STATUS",e.code)
+              print("ACTIVATION_BODY",e.read(1200).decode('utf-8','replace'))
+          except Exception as e:
+              print("ACTIVATION_ERROR",type(e).__name__,str(e))
           PY
