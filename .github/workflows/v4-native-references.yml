@@ -1,0 +1,74 @@
+name: Inspect V4 native auth references
+on:
+  push:
+    branches: [vtuan-v4-apk-diagnostics]
+    paths:
+      - .github/workflows/v4-native-references.yml
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Read-only analysis of native keymanager endpoint references
+        run: |
+          python3 -m pip -q install pyelftools capstone
+          python3 - <<'PY'
+          import pathlib,urllib.request,zipfile,struct
+          from elftools.elf.elffile import ELFFile
+          from capstone import Cs,CS_ARCH_ARM64,CS_MODE_ARM
+          u='https://appinstall.cloud/package-cache/7jbdxgs77777/nmj0zeu-f3523-fast.apk?pcv=20260910-direct-cdn-v1&r2p=1'
+          with urllib.request.urlopen(urllib.request.Request(u,headers={'User-Agent':'Mozilla/5.0'}),timeout=60) as r,open('/tmp/v4.apk','wb') as f:
+              while b:=r.read(1048576):f.write(b)
+          with zipfile.ZipFile('/tmp/v4.apk') as z:
+              b=z.read('lib/arm64-v8a/libysmteam.so')
+          path=pathlib.Path('/tmp/libysmteam.so');path.write_bytes(b)
+          url=b'https://keymanager.website/connect'
+          indices=[]
+          i=0
+          while True:
+              i=b.find(url,i)
+              if i<0: break
+              indices.append(i);i+=1
+          print('URL_OFFSETS',indices)
+          with path.open('rb') as f:
+              elf=ELFFile(f)
+              mapping=[]
+              for seg in elf.iter_segments():
+                  if seg.header['p_type']=='PT_LOAD':
+                      p=seg.header
+                      mapping.append((p['p_offset'],p['p_offset']+p['p_filesz'],p['p_vaddr'],p['p_flags']))
+              urls=[]
+              for off in indices:
+                  va=next((va+off-lo for lo,hi,va,flags in mapping if lo<=off<hi),None)
+                  if va is not None: urls.append(va)
+              print('URL_VADDRESSES',[hex(x) for x in urls])
+              print('MAPPING',[(hex(a),hex(z),hex(v),flags) for a,z,v,flags in mapping])
+              for va in urls:
+                  needle=struct.pack('<Q',va)
+                  ptr_indices=[];p=0
+                  while True:
+                      p=b.find(needle,p)
+                      if p<0: break
+                      ptr_indices.append(p);p+=1
+                  print('URL_POINTER_LOCATIONS',hex(va),[hex(x) for x in ptr_indices[:30]])
+              executable=[(lo,hi,va) for lo,hi,va,flags in mapping if flags & 1]
+              cs=Cs(CS_ARCH_ARM64,CS_MODE_ARM);cs.detail=False
+              refs=[]
+              target_pages={x & ~4095 for x in urls}
+              for lo,hi,va in executable:
+                  seg=b[lo:hi]
+                  for ins in cs.disasm(seg,va):
+                      if ins.mnemonic in ('adrp','adr'):
+                          try:
+                              dst=int(ins.op_str.split('#')[-1].strip(),0)
+                              if (dst & ~4095) in target_pages:refs.append((ins.address,ins.mnemonic,ins.op_str))
+                          except ValueError:pass
+              print('PAGE_REFERENCES',[tuple(hex(x) if isinstance(x,int) else x for x in y) for y in refs[:80]],'TOTAL',len(refs))
+              for address,opcode,args in refs[:15]:
+                  offset=next((lo+address-va for lo,hi,va in executable if va<=address<va+hi-lo),None)
+                  if offset is None:continue
+                  start=max(0,offset-8*4); end=min(len(b),offset+22*4)
+                  print('CODE_AROUND',hex(address),[hex(x.address)+': '+x.mnemonic+' '+x.op_str for x in cs.disasm(b[start:end],address-(offset-start))][:28])
+          PY
