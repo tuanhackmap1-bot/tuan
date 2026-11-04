@@ -1,0 +1,50 @@
+name: Inspect V4 native menu
+on:
+  push:
+    branches: [vtuan-v4-apk-diagnostics]
+    paths:
+      - .github/workflows/v4-apk-native.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Inspect exact public V4 APK without executing it
+        run: |
+          python3 - <<'PY'
+          import hashlib, pathlib, urllib.request, zipfile, subprocess
+          u="https://appinstall.cloud/package-cache/7jbdxgs77777/nmj0zeu-f3523-fast.apk?pcv=20260910-direct-cdn-v1&r2p=1"
+          req=urllib.request.Request(u,headers={"User-Agent":"Mozilla/5.0"})
+          p=pathlib.Path("/tmp/LQ_V4.apk")
+          with urllib.request.urlopen(req,timeout=60) as r,p.open("wb") as f:
+              while b:=r.read(1024*1024): f.write(b)
+          print("APK_BYTES",p.stat().st_size,flush=True)
+          with zipfile.ZipFile(p) as z:
+              libs=[i for i in z.infolist() if i.filename.startswith("lib/") and i.filename.endswith(".so")]
+              print("SO_COUNT",len(libs))
+              for info in libs:
+                  if "ysmteam" in info.filename or "Resources" in info.filename or "main" in info.filename:
+                      data=z.read(info)
+                      print("NATIVE",info.filename,"size",info.file_size,
+                            "isELF",data.startswith(bytes.fromhex("7f454c46")),
+                            "dex_headers",data.count(bytes.fromhex("6465780a")),
+                            "compression",info.compress_type)
+                      tmp=pathlib.Path("/tmp/"+info.filename.rsplit("/",1)[-1]);tmp.write_bytes(data)
+                      if data.startswith(bytes.fromhex("7f454c46")):
+                          for command in [["readelf","-h",str(tmp)],["readelf","-d",str(tmp)]]:
+                              out=subprocess.run(command,text=True,capture_output=True,check=False)
+                              if command[1]=="-h":
+                                  print("ELF_INFO",info.filename," ".join(x.strip() for x in out.stdout.splitlines() if any(s in x for s in ["Class:","Machine:","Type:"])))
+                              else:
+                                  print("ELF_NEEDED",info.filename,[x.strip() for x in out.stdout.splitlines() if "(NEEDED)" in x])
+                      words=subprocess.run(["strings","-a","-n","7",str(tmp)],text=True,capture_output=True,check=False).stdout.splitlines()
+                      matched=[x for x in words if any(k in x.lower() for k in ("gcloud","jni_onload","native","xacthuc","/api/","getkey","ysmteam","dex"))]
+                      print("MATCHED_STRINGS",info.filename,matched[:35])
+              for name in [x for x in z.namelist() if x.endswith(".dex")]:
+                  data=z.read(name)
+                  tags=[(k.decode(),data.count(k)) for k in [b"XacThuc",b"nativeDangNhap",b"nativeHanDung",b"com/android/support",b"Login",b"YSM"]]
+                  print("DEX",name,"bytes",len(data),"tags",tags)
+          PY
