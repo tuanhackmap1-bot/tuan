@@ -1,0 +1,47 @@
+name: V4 activity startup inspection
+on:
+  push:
+    branches: [vtuan-v4-apk-diagnostics]
+    paths:
+      - .github/workflows/v4-startup-analysis.yml
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Inspect SGameActivity, SGameRealActivity and resource loading
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import urllib.request,pathlib,zipfile,hashlib
+          u="https://appinstall.cloud/package-cache/7jbdxgs77777/nmj0zeu-f3523-fast.apk?pcv=20260910-direct-cdn-v1&r2p=1"
+          p=pathlib.Path("/tmp/v4.apk")
+          with urllib.request.urlopen(urllib.request.Request(u,headers={"User-Agent":"Mozilla/5.0"}),timeout=60) as r,p.open("wb") as o:
+              while b:=r.read(1048576):o.write(b)
+          print("V4_SHA256",hashlib.sha256(p.read_bytes()).hexdigest())
+          with zipfile.ZipFile(p) as z:
+              for n in [x for x in z.namelist() if x.endswith(".dex")]:
+                  pathlib.Path("/tmp/"+n).write_bytes(z.read(n))
+          PY
+          DEXDUMP="$(find "$ANDROID_HOME/build-tools" -type f -name dexdump | sort -V | tail -n1)"
+          if [ -z "$DEXDUMP" ]; then
+            echo "NO_DEXDUMP"
+            exit 0
+          fi
+          for i in 1 2 3 4 5 6; do
+            d="/tmp/classes$i.dex"
+            [ "$i" = "1" ] && d=/tmp/classes.dex
+            [ -f "$d" ] || continue
+            echo "===== DEX $i ====="
+            "$DEXDUMP" -f "$d" | grep -E -A3 '(SGameActivity|SGameRealActivity|NGameApplication|GLES3JNIView|ysmteam|KeyManager)' | head -n 150 || true
+          done
+          echo "===== CLASS REFERENCES ====="
+          for i in 1 2 3 4 5 6; do
+            d="/tmp/classes$i.dex"
+            [ "$i" = "1" ] && d=/tmp/classes.dex
+            [ -f "$d" ] || continue
+            strings "$d" | grep -E '(SGameRealActivity|SGameActivity|NGameApplication|libResources|gcloud|GLES3JNIView)' | head -n 40 || true
+          done
