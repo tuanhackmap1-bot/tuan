@@ -1,0 +1,49 @@
+name: Build VTUAN native test
+on:
+  workflow_dispatch:
+  push:
+    branches: [vtuan-android-build]
+    paths:
+      - 'vtuan_android/native_mit_demo/**'
+      - '.github/workflows/vtuan-native-test.yml'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Setup Android dependencies
+        run: |
+          SDKM=$(find "${ANDROID_HOME:-/usr/local/lib/android/sdk}/cmdline-tools" -type f -name sdkmanager | head -1)
+          test -n "$SDKM"
+          yes | "$SDKM" --licenses >/dev/null || true
+          "$SDKM" 'platforms;android-35' 'build-tools;35.0.0' 'ndk;27.0.12077973' 'cmake;3.22.1'
+      - name: Extract and integrity check project
+        run: |
+          mkdir -p vtuan_android/native_mit_demo
+          sha256sum vtuan_android/native_mit_demo/payload.tar.xz
+          cd vtuan_android/native_mit_demo
+          tar -xJf payload.tar.xz
+          test -s app/src/main/java/com/vtuan/nativeproof/MainActivity.java
+      - name: Clone Dear ImGui source
+        run: |
+          git clone --branch v1.91.9 --depth 1 https://github.com/ocornut/imgui.git vtuan_android/native_mit_demo/app/src/main/cpp/imgui
+      - name: Build Debug APK
+        run: gradle --no-daemon -p vtuan_android/native_mit_demo assembleDebug
+      - name: Verify APK
+        run: |
+          APK=vtuan_android/native_mit_demo/app/build/outputs/apk/debug/app-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
+          unzip -l "$APK" | grep 'lib/arm64-v8a/libvtuanmenu.so'
+          unzip -t "$APK" | tail -1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VTUAN-NATIVE-KEY-TEST-APK
+          path: vtuan_android/native_mit_demo/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
