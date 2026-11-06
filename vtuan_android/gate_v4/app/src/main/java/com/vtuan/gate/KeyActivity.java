@@ -252,11 +252,68 @@ public final class KeyActivity extends Activity {
     }catch(Exception ignored){return null;}
   }
   private void openGame(){
+    if(busy)return;
     if(!hasVerifiedKey()){
-      status.setText("Hãy xác thực key hiện tại trước khi mở game.");
+      status.setText("Hãy xác thực key hiện tại trước khi mở ứng dụng.");
       launch.setVisibility(View.GONE);
       return;
     }
+    // Do not rely on a prior activation when a key might have been revoked
+    // while the screen is still open. Always ask the server again first.
+    final String key=verifiedKey;
+    final String serverId=verifiedServer;
+    busy=true;
+    launch.setEnabled(false);
+    submit.setEnabled(false);
+    status.setText("Đang xác thực key lần cuối trước khi mở...");
+    new Thread(()->{
+      JSONObject response;
+      try{
+        JSONObject payload=new JSONObject();
+        payload.put("key",key);
+        response=request(KeyApiPath.endpoint(serverId,true),payload);
+      }catch(Exception failed){
+        runOnUiThread(()->{
+          if(isFinishing()||isDestroyed())return;
+          busy=false;
+          launch.setEnabled(true);
+          submit.setEnabled(true);
+          status.setText("Không kiểm tra lại được key qua máy chủ VTUAN. Chưa mở ứng dụng.");
+        });
+        return;
+      }
+      final JSONObject verified=response;
+      runOnUiThread(()->{
+        if(isFinishing()||isDestroyed())return;
+        busy=false;
+        launch.setEnabled(true);
+        submit.setEnabled(true);
+        if(!hasVerifiedKey()||!key.equals(verifiedKey)||!serverId.equals(verifiedServer)){
+          status.setText("Key hoặc server đã thay đổi. Hãy xác thực lại.");
+          return;
+        }
+        if(!verified.optBoolean("ok",false)){
+          String reason=verified.optString("message",verified.optString("error","Key không hợp lệ"));
+          invalidateVerification();
+          status.setText("Xác thực key thất bại: "+(reason.length()>120?reason.substring(0,120):reason));
+          return;
+        }
+        String latestExpiry=verified.optString("expires_at","");
+        if(!latestExpiry.isEmpty()){
+          Long end=KeyExpiry.epochMillis(latestExpiry);
+          if(end!=null && end<=System.currentTimeMillis()){
+            invalidateVerification();
+            status.setText("Key đã hết hạn theo thời điểm máy chủ cung cấp.");
+            return;
+          }
+          verifiedExpiry=latestExpiry;
+        }
+        status.setText("✓ Máy chủ xác nhận key hợp lệ. Đang mở ứng dụng...");
+        launchOriginalApp();
+      });
+    },"VTUAN-VerifyBeforeLaunch").start();
+  }
+  private void launchOriginalApp(){
     try{
       // An APK host may declare its original launch target in app metadata.
       String embeddedTarget=embeddedTarget();
