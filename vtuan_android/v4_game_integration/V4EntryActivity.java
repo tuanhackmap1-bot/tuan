@@ -116,8 +116,10 @@ public final class V4EntryActivity extends Activity {
             conn.setFixedLengthStreamingMode(request.length);
             try(OutputStream os=conn.getOutputStream()) {os.write(request);}
             int code=conn.getResponseCode();
-            if(code<200||code>=300)throw new IllegalStateException("HTTP "+code);
-            try(InputStream in=conn.getInputStream();
+            boolean goodHttp=code>=200&&code<300;
+            InputStream responseStream=goodHttp?conn.getInputStream():conn.getErrorStream();
+            if(responseStream==null)throw new IllegalStateException("HTTP "+code+" with no body");
+            try(InputStream in=responseStream;
                 BufferedReader br=new BufferedReader(new InputStreamReader(in,StandardCharsets.UTF_8))) {
                 StringBuilder result=new StringBuilder();
                 char[] buf=new char[1024];
@@ -126,7 +128,9 @@ public final class V4EntryActivity extends Activity {
                     if(result.length()+n>16384)throw new IllegalStateException("Phản hồi quá lớn");
                     result.append(buf,0,n);
                 }
-                return new JSONObject(result.toString());
+                JSONObject parsed=new JSONObject(result.toString());
+                if(!goodHttp)parsed.put("ok",false);
+                return parsed;
             }
         } finally {
             if(conn!=null)conn.disconnect();
@@ -164,8 +168,8 @@ public final class V4EntryActivity extends Activity {
                     }
                     String expiry=out.optString("expires_at","");
                     Long expiryMs=KeyExpiry.epochMillis(expiry);
-                    if(!out.optBoolean("ok",false)||expiryMs==null ||
-                       expiryMs<=System.currentTimeMillis()) {
+                    if(!out.optBoolean("ok",false) ||
+                       (expiryMs!=null && expiryMs<=System.currentTimeMillis())) {
                         status.setText("Key bị từ chối hoặc đã hết hạn; kiểm tra key/server.");
                         return;
                     }
