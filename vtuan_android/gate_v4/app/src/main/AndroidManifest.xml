@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <queries>
+        <package android:name="com.garena.game.kgvn" />
+    </queries>
+    <application android:allowBackup="false" android:usesCleartextTraffic="false"
+        android:label="VTUAN Key" android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        <activity android:name="com.vtuan.gate.KeyActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
