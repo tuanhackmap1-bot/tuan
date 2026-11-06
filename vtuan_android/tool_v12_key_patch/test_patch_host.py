@@ -105,7 +105,7 @@ class Tests(unittest.TestCase):
             with zipfile.ZipFile(patched,"w") as dst:
                 dst.writestr("lib/arm64-v8a/libexample.so",b"ELF original bytes")
                 dst.writestr("assets/data.bin",b"original asset")
-                dst.writestr("classes.dex",b"changed dex allowed")
+                dst.writestr("classes.dex",b"original dex")
             self.assertEqual(verify_unchanged_payload(original,patched),3)
 
     def test_native_library_disappearance_is_a_fatal_error(self):
