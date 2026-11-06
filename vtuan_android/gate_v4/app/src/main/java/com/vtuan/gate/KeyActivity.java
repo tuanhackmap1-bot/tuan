@@ -1,5 +1,8 @@
 package com.vtuan.gate;
 import android.app.Activity;
+import android.provider.Settings;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -21,11 +24,12 @@ public final class KeyActivity extends Activity {
   private EditText input, svField;
   private CheckBox save,auto;
   private TextView status;
-  private Button submit, launch;
+  private Button submit, launch, overlay;
   private SharedPreferences prefs;
   private boolean busy=false;
   private String verifiedKey=null;
   private String verifiedServer=null;
+  private String verifiedExpiry=null;
 
   private int d(float x){return (int)(x*getResources().getDisplayMetrics().density+0.5f);}
   private GradientDrawable bg(int fill,int outline,int radius){
@@ -111,21 +115,26 @@ public final class KeyActivity extends Activity {
     launch.setVisibility(View.GONE);
     panel.addView(launch,item(-1,44,9));
     launch.setOnClickListener(v->openGame());
+    overlay=new Button(this);
+    overlay.setText("Bật menu nổi trạng thái key");
+    overlay.setTextColor(Color.WHITE);
+    overlay.setTextSize(12);
+    overlay.setAllCaps(false);
+    overlay.setBackground(bg(0xff61378a,0,20));
+    overlay.setVisibility(View.GONE);
+    panel.addView(overlay,item(-1,44,9));
+    overlay.setOnClickListener(v->startKeyOverlay());
     input.addTextChangedListener(new TextWatcher(){
       @Override public void beforeTextChanged(CharSequence value,int start,int count,int after){}
       @Override public void onTextChanged(CharSequence value,int start,int before,int count){
-        verifiedKey=null;
-        verifiedServer=null;
-        launch.setVisibility(View.GONE);
+        invalidateVerification();
       }
       @Override public void afterTextChanged(Editable value){}
     });
     svField.addTextChangedListener(new TextWatcher(){
       @Override public void beforeTextChanged(CharSequence value,int start,int count,int after){}
       @Override public void onTextChanged(CharSequence value,int start,int before,int count){
-        verifiedKey=null;
-        verifiedServer=null;
-        launch.setVisibility(View.GONE);
+        invalidateVerification();
       }
       @Override public void afterTextChanged(Editable value){}
     });
@@ -185,9 +194,54 @@ public final class KeyActivity extends Activity {
       if(c!=null)c.disconnect();
     }
   }
+  private void invalidateVerification(){
+    verifiedKey=null;
+    verifiedServer=null;
+    verifiedExpiry=null;
+    if(launch!=null)launch.setVisibility(View.GONE);
+    if(overlay!=null)overlay.setVisibility(View.GONE);
+    stopService(new Intent(this,OverlayService.class));
+  }
+  private boolean hasVerifiedKey(){
+    return verifiedKey!=null && verifiedServer!=null && verifiedExpiry!=null
+        && verifiedKey.equals(input.getText().toString().trim())
+        && verifiedServer.equals(KeyApiPath.normalizeServer(svField.getText().toString()));
+  }
+  private void startKeyOverlay(){
+    if(!hasVerifiedKey()){
+      status.setText("Cần xác thực key trước khi bật menu nổi.");
+      return;
+    }
+    Long expiry=KeyExpiry.epochMillis(verifiedExpiry);
+    if(expiry==null || expiry<=System.currentTimeMillis()){
+      status.setText("Đã tới thời điểm hết hạn theo giờ thiết bị; hãy xác thực key lại.");
+      invalidateVerification();
+      return;
+    }
+    if(Build.VERSION.SDK_INT>=23 && !Settings.canDrawOverlays(this)){
+      Intent settings=new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+          Uri.parse("package:"+getPackageName()));
+      try{
+        startActivity(settings);
+        status.setText("Cấp quyền Hiển thị trên ứng dụng khác, rồi quay lại bấm Bật menu nổi.");
+      }catch(Exception ignored){
+        status.setText("Không mở được cài đặt quyền menu nổi.");
+      }
+      return;
+    }
+    Intent intent=new Intent(this,OverlayService.class);
+    intent.putExtra(OverlayService.EXTRA_SERVER,verifiedServer);
+    intent.putExtra(OverlayService.EXTRA_EXPIRY,verifiedExpiry);
+    try{
+      if(Build.VERSION.SDK_INT>=26)startForegroundService(intent);
+      else startService(intent);
+      status.setText("Menu nổi trạng thái key đã được yêu cầu bật (tối đa 10 phút).");
+    }catch(Exception ignored){
+      status.setText("Không thể bật menu nổi trên thiết bị này.");
+    }
+  }
   private void openGame(){
-    if(verifiedKey==null || !verifiedKey.equals(input.getText().toString().trim()) ||
-       verifiedServer==null || !verifiedServer.equals(KeyApiPath.normalizeServer(svField.getText().toString()))){
+    if(!hasVerifiedKey()){
       status.setText("Hãy xác thực key hiện tại trước khi mở game.");
       launch.setVisibility(View.GONE);
       return;
@@ -212,9 +266,7 @@ public final class KeyActivity extends Activity {
       status.setText("Mã SV con không hợp lệ (chỉ a-z, 0-9, -, từ 3 đến 32 ký tự).");
       return;
     }
-    verifiedKey=null;
-    verifiedServer=null;
-    launch.setVisibility(View.GONE);
+    invalidateVerification();
     busy=true;submit.setEnabled(false);status.setText("Đang kiểm tra key...");
     new Thread(()->{
       try{
@@ -249,10 +301,12 @@ public final class KeyActivity extends Activity {
               .putBoolean("auto",false).apply();
           verifiedKey=key;
           verifiedServer=serverId;
+          verifiedExpiry=expiry;
           status.setText("✓ Key hợp lệ\nServer: "+(serverId.isEmpty()?"Admin tổng":serverId)+
                   "\nGói: "+days+" ngày\nHết hạn: "+expiry.replace('T',' ')+
                   "\nCòn lại (ước tính): "+KeyExpiry.remainingText(expiry,System.currentTimeMillis()));
           launch.setVisibility(View.VISIBLE);
+          overlay.setVisibility(View.VISIBLE);
           if(auto.isChecked())openGame();
         });
       }catch(Exception e){
