@@ -340,8 +340,7 @@ public final class KeyActivity extends Activity {
         runOnUiThread(()->{
           if(isFinishing() || isDestroyed())return;
           busy=false;submit.setEnabled(true);
-          if(!key.equals(input.getText().toString().trim()) ||
-             !serverId.equals("")){
+          if(!key.equals(input.getText().toString().trim())){
             status.setText("Key đã thay đổi. Hãy xác thực lại key mới.");
             return;
           }
@@ -362,8 +361,7 @@ public final class KeyActivity extends Activity {
           verifiedKey=key;
           verifiedServer=serverId;
           verifiedExpiry=expiry;
-          status.setText("✓ Key hợp lệ\nServer: "+(serverId.isEmpty()?"Admin tổng":serverId)+
-                  "\nGói: "+days+" ngày\nHết hạn: "+expiry.replace('T',' ')+
+          status.setText("✓ Key hợp lệ\nGói: "+days+" ngày\nHết hạn: "+expiry.replace('T',' ')+
                   "\nCòn lại (ước tính): "+KeyExpiry.remainingText(expiry,System.currentTimeMillis()));
           launch.setVisibility(View.VISIBLE);
           overlay.setVisibility(embeddedTarget()==null?View.VISIBLE:View.GONE);
