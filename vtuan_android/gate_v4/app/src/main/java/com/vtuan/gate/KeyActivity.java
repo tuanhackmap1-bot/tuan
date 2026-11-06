@@ -209,7 +209,8 @@ public final class KeyActivity extends Activity {
   private boolean hasVerifiedKey(){
     return verifiedKey!=null && verifiedServer!=null && verifiedExpiry!=null
         && verifiedKey.equals(input.getText().toString().trim())
-        && verifiedServer.equals(KeyApiPath.normalizeServer(svField.getText().toString()));
+        && verifiedServer.equals(KeyApiPath.normalizeServer(svField.getText().toString()))
+        && KeyExpiry.isFuture(verifiedExpiry,System.currentTimeMillis());
   }
   private void startKeyOverlay(){
     if(!hasVerifiedKey()){
@@ -299,15 +300,13 @@ public final class KeyActivity extends Activity {
           return;
         }
         String latestExpiry=verified.optString("expires_at","");
-        if(!latestExpiry.isEmpty()){
-          Long end=KeyExpiry.epochMillis(latestExpiry);
-          if(end!=null && end<=System.currentTimeMillis()){
-            invalidateVerification();
-            status.setText("Key đã hết hạn theo thời điểm máy chủ cung cấp.");
-            return;
-          }
-          verifiedExpiry=latestExpiry;
+        String effectiveExpiry=latestExpiry.isEmpty()?verifiedExpiry:latestExpiry;
+        if(!KeyExpiry.isFuture(effectiveExpiry,System.currentTimeMillis())){
+          invalidateVerification();
+          status.setText("Thời hạn key không hợp lệ hoặc đã hết hạn; chưa mở ứng dụng.");
+          return;
         }
+        verifiedExpiry=effectiveExpiry;
         status.setText("✓ Máy chủ xác nhận key hợp lệ. Đang mở ứng dụng...");
         launchOriginalApp();
       });
@@ -373,8 +372,8 @@ public final class KeyActivity extends Activity {
           }
           int days=response.optInt("duration_days",0);
           String expiry=response.optString("expires_at","");
-          if(days<=0 || expiry.isEmpty()){
-            status.setText("Phản hồi máy chủ thiếu thông tin thời hạn. Không chấp nhận.");
+          if(days<=0 || !KeyExpiry.isFuture(expiry,System.currentTimeMillis())){
+            status.setText("Máy chủ trả về gói hoặc thời điểm hết hạn không hợp lệ.");
             return;
           }
           if(save.isChecked())prefs.edit().putString("activated_key",key)
