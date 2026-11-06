@@ -16,10 +16,14 @@ Alternatively, open the GitHub Actions workflow **Build standalone VTUAN V4 key 
 
 ## What it does
 
-- Validates a user-entered key using HTTPS at the VTUAN endpoint.
-- Can save a key and recheck it (saved in ordinary app preferences; avoid using a sensitive password as a key).
+- Validates a user-entered key using HTTPS at the VTUAN endpoint. Optional **Mã SV con** supports reseller servers; leave it blank for Admin keys. Both the key and the server identifier must be revalidated when changed.
+- Can save a key and server identifier and recheck on the next launch (saved in ordinary app preferences; avoid using a sensitive password as a key).
 - After successful validation, shows the key package duration and server-reported expiration date. Tap **Vào Liên Quân** to launch the separately installed `com.garena.game.kgvn` app, or enable **Tự Động Bật** to launch it immediately after validation.
 - Displays a message if that application is not installed.
+
+## Test status
+
+CI builds run deterministic JVM checks for expiration parsing and safe Admin/CTV API routing before generating the debug APK. The live VPS and Android device still require integration testing.
 
 ## Important limitations
 
