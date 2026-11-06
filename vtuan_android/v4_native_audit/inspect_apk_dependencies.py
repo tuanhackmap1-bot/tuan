@@ -33,6 +33,14 @@ def needed_dependencies(data):
     except Exception as exc:
         return [], "ELF parser: " + type(exc).__name__
 
+def collect_native_entries(names):
+    return sorted(n for n in names
+                  if re.fullmatch(r"lib/[^/]+/[^/]+\.so", n))
+
+def count_dex_entries(names):
+    return sum(bool(re.fullmatch(r"classes(?:[2-9][0-9]*)?\.dex", n))
+               for n in names)
+
 def inspect(path):
     with zipfile.ZipFile(path) as apk:
         names = set(apk.namelist())
@@ -42,7 +50,9 @@ def inspect(path):
         sha = hashlib.sha256(raw).hexdigest()
         if sha != EXPECTED_SHA256:
             raise ValueError("V4 library SHA-256 mismatch: " + sha)
-        libs = sorted(n for n in names if re.match(r"^lib/[^/]+/[^/]+\\.so$", n))
+        libs = collect_native_entries(names)
+        if V4_LIB not in libs:
+            raise ValueError("Native ZIP inventory inconsistent: missing verified V4 library")
         by_abi = {}
         for n in libs:
             abi, name = n.split("/")[1:]
@@ -67,8 +77,7 @@ def inspect(path):
             "apk_bytes": Path(path).stat().st_size,
             "v4_lib_sha256": sha,
             "v4_lib_bytes": len(raw),
-            "dex_count": sum(bool(re.match(r"^classes(?:[2-9][0-9]*)?\\.dex$", n))
-                             for n in names),
+            "dex_count": count_dex_entries(names),
             "native_so_count": len(libs),
             "abi_counts": {abi: len(entries) for abi, entries in sorted(by_abi.items())},
             "interesting_libraries_packaged": {x: all_names[x] for x in INTERESTING},
@@ -87,11 +96,11 @@ def write_report(data, output):
     lines = [
         "# V4 — Kiểm tra cấu trúc APK và thư viện native",
         "",
-        f"- Tệp: \`{data['apk_name']}\` ({data['apk_bytes']:,} bytes)",
-        f"- libysmteam.so SHA-256: \`{data['v4_lib_sha256']}\` — khớp bản phân tích",
+        f"- Tệp: `{data['apk_name']}` ({data['apk_bytes']:,} bytes)",
+        f"- libysmteam.so SHA-256: `{data['v4_lib_sha256']}` — khớp bản phân tích",
         f"- Số classes*.dex: **{data['dex_count']}**",
         f"- Số .so đóng gói: **{data['native_so_count']}**",
-        "- ABI: " + (", ".join(f"\`{abi}\`: {n}" for abi, n in data["abi_counts"].items()) or "không có"),
+        "- ABI: " + (", ".join(f"`{abi}`: {n}" for abi, n in data["abi_counts"].items()) or "không có"),
         "",
         "## Các thư viện cần kiểm tra",
         "",
@@ -99,12 +108,12 @@ def write_report(data, output):
         "|---|---|---:|",
     ]
     for name, count in data["interesting_libraries_packaged"].items():
-        lines.append(f"| \`{name}\` | {'Có' if count else '**Không thấy**'} | {count} |")
+        lines.append(f"| `{name}` | {'Có' if count else '**Không thấy**'} | {count} |")
     lines += ["", "## Quan hệ ELF DT_NEEDED", ""]
     for path, info in data["dependency_info"].items():
-        lines.append(f"### \`{path}\`")
+        lines.append(f"### `{path}`")
         lines.append("- Phụ thuộc trực tiếp: " +
-                     (", ".join(f"\`{n}\`" for n in info.get("needed", [])) or "không xác định"))
+                     (", ".join(f"`{n}`" for n in info.get("needed", [])) or "không xác định"))
         if info.get("error"):
             lines.append("- Ghi chú: " + info["error"])
         lines.append("")
