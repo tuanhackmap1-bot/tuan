@@ -23,6 +23,14 @@ public final class KeyExpiryTest {
            utc-26L*60*60*1000)),"Remaining time formatting failed");
     expect(KeyExpiry.remainingText("2026-11-06T03:00:00Z",utc+1000L)
            .contains("Đã tới"),"Elapsed estimate failed");
-    System.out.println("PASS: 7 key-expiration parsing and display assertions");
+    expect(KeyExpiry.isFuture("2026-11-06T03:00:00Z",utc-1000L),
+           "Future expiry refused");
+    expect(!KeyExpiry.isFuture("2026-11-06T03:00:00Z",utc),
+           "Expired key accepted at deadline");
+    expect(!KeyExpiry.isFuture("2026-11-06T03:00:00Z",utc+1000L),
+           "Past expiry accepted");
+    expect(!KeyExpiry.isFuture("2026-11-06T03:00:00",utc-1000L),
+           "Malformed UTC-less expiry accepted");
+    System.out.println("PASS: 11 key-expiration parsing, formatting, and validity assertions");
   }
 }
