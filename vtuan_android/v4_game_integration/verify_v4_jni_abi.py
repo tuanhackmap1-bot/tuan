@@ -26,7 +26,7 @@ NATIVE_CALL_BYTES = bytes.fromhex("089d42f900013fd6")
 
 def file_offset(elf, vaddr):
     """Find ELF PT_LOAD file byte offset for an AArch64 virtual address."""
-    if len(elf) < 0x40 or elf[:4] != b"\\x7fELF" or elf[4] != 2 or elf[5] != 1:
+    if len(elf) < 0x40 or elf[:4] != b"\x7fELF" or elf[4] != 2 or elf[5] != 1:
         raise ValueError("Not a little-endian ELF64 library")
     machine, = struct.unpack_from("<H", elf, 18)
     if machine != 183:
@@ -52,7 +52,7 @@ def verify(apk_path):
         sha = hashlib.sha256(native).hexdigest()
         if sha != SHA256:
             raise ValueError("Wrong V4 JNI library SHA256: " + sha)
-        dex = sorted(n for n in z.namelist() if re.fullmatch(r"classes(?:[2-9]|[1-9][0-9]+)?\\.dex", n))
+        dex = sorted(n for n in z.namelist() if re.fullmatch(r"classes(?:[2-9]|[1-9][0-9]+)?\.dex", n))
         unexpected = [n for n in dex if b"Lcom/ysmteam/imgui/GLES3JNIView;" in z.read(n)]
         if unexpected:
             raise ValueError("Original V4 already defines JNI bridge; duplicate class in " + str(unexpected))
@@ -68,8 +68,8 @@ def verify(apk_path):
     for name in NATIVE_FUNCS:
         symbol = JNI_PREFIX + name
         matches = re.findall(
-            r"(?m)^\\s*\\d+:\\s*([0-9a-fA-F]+)\\s+\\d+\\s+FUNC\\s+GLOBAL\\s+DEFAULT\\s+\\d+\\s+" +
-            re.escape(symbol) + r"\\s*$", syms)
+            r"(?m)^\s*\d+:\s*([0-9a-fA-F]+)\s+\d+\s+FUNC\s+GLOBAL\s+DEFAULT\s+\d+\s+" +
+            re.escape(symbol) + r"\s*$", syms)
         if len(matches) != 1:
             raise ValueError("Missing/ambiguous V4 JNI symbol " + symbol)
         exports[name] = "0x" + matches[0].lstrip("0")
@@ -93,7 +93,7 @@ def main():
     findings = verify(args.apk)
     path = Path(args.report)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(findings, indent=2, ensure_ascii=False)+"\\n", encoding="utf-8")
+    path.write_text(json.dumps(findings, indent=2, ensure_ascii=False)+"\n", encoding="utf-8")
     print("PASS: V4 JNI exports and NewStringUTF ABI verified. " +
           str(findings["verified_original_dex_count"]) + " original DEX files checked.")
 
