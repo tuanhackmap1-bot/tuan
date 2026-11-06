@@ -153,6 +153,32 @@ def append_gate_dex(folder: Path, gate_apk: Path) -> int:
     return next_index - 1
 
 
+
+def verify_unchanged_payload(original_apk: Path, patched_apk: Path) -> int:
+    """Reject builds that drop or alter native libraries or packaged assets.
+
+    In particular, silently dropping a required .so library can produce the
+    UnsatisfiedLinkError crashes seen when a third-party APK is rebuilt.
+    ZIP CRC and uncompressed sizes are compared without extracting 244 MB+
+    APK contents into memory.
+    """
+    preserved = 0
+    with zipfile.ZipFile(original_apk) as source, zipfile.ZipFile(patched_apk) as target:
+        original = {x.filename: x for x in source.infolist()
+                    if x.filename.startswith(("lib/", "assets/")) and
+                    not x.is_dir()}
+        output = {x.filename: x for x in target.infolist()}
+        for name, before in original.items():
+            after = output.get(name)
+            if after is None:
+                raise ValueError(f"Patch dropped original native library or asset: {name}")
+            if before.file_size != after.file_size or before.CRC != after.CRC:
+                raise ValueError(f"Patch modified original native library or asset: {name}")
+            preserved += 1
+    print(f"Preserved {preserved} original native library/asset entries", flush=True)
+    return preserved
+
+
 def patch(args: argparse.Namespace) -> None:
     for f in (args.apk, args.gate, args.apktool):
         if not f.is_file():
@@ -192,7 +218,12 @@ def patch(args: argparse.Namespace) -> None:
             if invalid is not None:
                 raise ValueError(f"Bad APK zip entry: {invalid}")
             assert "AndroidManifest.xml" in z.namelist()
-        digest = hashlib.sha256(args.output.read_bytes()).hexdigest()
+        verify_unchanged_payload(args.apk, args.output)
+        digest = hashlib.sha256()
+        with args.output.open("rb") as result_file:
+            for block in iter(lambda: result_file.read(1024 * 1024), b""):
+                digest.update(block)
+        digest = digest.hexdigest()
         print(f"APK CREATED: {args.output} ({args.output.stat().st_size} bytes)")
         print(f"SHA256: {digest}")
         print("Warning: patched package is re-signed, original app signature is NOT preserved.")
