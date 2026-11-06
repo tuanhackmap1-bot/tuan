@@ -1,0 +1,25 @@
+name: Probe VTUAN key API routes (no real key)
+on:
+  workflow_dispatch:
+  push:
+    branches: [vtuan-v4-native-audit]
+    paths:
+      - '.github/workflows/vtuan-key-api-probe.yml'
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Probe HTTPS endpoint routes without any key material
+        shell: bash
+        env:
+          HOST: https://vtuan-103-159-51-231.sslip.io
+        run: |
+          set +e
+          for path in /healthz /api/activate /api/verify /api/sv/test-ctv/activate /api/sv/test-ctv/verify; do
+            printf 'GET %s => ' "$path"
+            curl --silent --show-error --max-time 12 --connect-timeout 5 \
+              --output /dev/null --write-out '%{http_code}\n' "$HOST$path" || echo '(connection failed)'
+          done
