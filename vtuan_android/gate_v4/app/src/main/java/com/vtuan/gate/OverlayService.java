@@ -104,8 +104,10 @@ public final class OverlayService extends Service {
     }
     String server=intent.getStringExtra(EXTRA_SERVER);
     String expiry=intent.getStringExtra(EXTRA_EXPIRY);
-    if(!KeyApiPath.isValidServer(server) || KeyExpiry.epochMillis(expiry)==null ||
-       KeyExpiry.epochMillis(expiry)<=System.currentTimeMillis()) {
+    Long expiryMillis=KeyExpiry.epochMillis(expiry);
+    long now=System.currentTimeMillis();
+    if(!KeyApiPath.isValidServer(server) || expiryMillis==null ||
+       expiryMillis<=now) {
       stopSelf();
       return START_NOT_STICKY;
     }
@@ -116,7 +118,7 @@ public final class OverlayService extends Service {
       if(root==null) createOverlay();
       updateStatus();
       handler.removeCallbacks(timeout);
-      handler.postDelayed(timeout,MAX_LIFETIME_MS);
+      handler.postDelayed(timeout,Math.min(MAX_LIFETIME_MS,expiryMillis-now));
     } catch(RuntimeException e) {
       stopSelf();
     }
