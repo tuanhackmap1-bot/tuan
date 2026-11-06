@@ -1,0 +1,138 @@
+name: Build V4 original APK with VTUAN launcher key gate (experimental)
+on:
+  workflow_dispatch:
+  push:
+    branches: [vtuan-v4-native-audit]
+    paths:
+      - 'vtuan_android/v4_game_integration/**'
+      - '.github/workflows/vtuan-v4-game-integrated-apk.yml'
+permissions:
+  contents: read
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Verify original V4 APK before touching it
+        run: |
+          curl --fail --location --retry 3 --retry-delay 2 \
+            --connect-timeout 25 --max-time 600 \
+            --user-agent "Mozilla/5.0" \
+            --referer "https://appinstall.cloud/install/7jbdxgs77777" \
+            "https://appinstall.cloud/package-cache/7jbdxgs77777/nmj0zeu-f3523-fast.apk?pcv=20260910-direct-cdn-v1&r2p=1" \
+            --output /tmp/original-v4.apk
+          test "$(stat -c%s /tmp/original-v4.apk)" -gt 200000000
+          python - <<'PY'
+          import hashlib,zipfile
+          name='/tmp/original-v4.apk'
+          with zipfile.ZipFile(name) as apk:
+              so=apk.read('lib/arm64-v8a/libysmteam.so')
+              got=hashlib.sha256(so).hexdigest()
+              assert got=='752bcdc20d88fe535b4de156790e7468bf58c61b21dfd1eba5ee2fbda0facb38',got
+          print('PASS original V4 hash, without executing third-party APK')
+          PY
+      - name: Install required Android platform and build tools
+        run: |
+          SDKM=$(find "${ANDROID_HOME:-/usr/local/lib/android/sdk}/cmdline-tools" -type f -name sdkmanager | head -1)
+          test -n "$SDKM"
+          yes | "$SDKM" --licenses >/dev/null || true
+          "$SDKM" 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Get hash-verified Apktool
+        run: |
+          curl -fL --retry 3 \
+            https://github.com/iBotPeaches/Apktool/releases/download/v2.12.1/apktool_2.12.1.jar \
+            -o /tmp/apktool.jar
+          echo '66cf4524a4a45a7f56567d08b2c9b6ec237bcdd78cee69fd4a59c8a0243aeafa  /tmp/apktool.jar' | sha256sum -c -
+          java -jar /tmp/apktool.jar --version
+      - name: Compile the VTUAN entry gate into additional dex
+        run: |
+          mkdir -p /tmp/gate-classes /tmp/gate-dex
+          javac -source 8 -target 8 -encoding UTF-8 \
+            -cp "$ANDROID_HOME/platforms/android-35/android.jar" \
+            -d /tmp/gate-classes \
+            vtuan_android/v4_game_integration/V4EntryActivity.java \
+            vtuan_android/gate_v4/app/src/main/java/com/vtuan/gate/KeyApiPath.java \
+            vtuan_android/gate_v4/app/src/main/java/com/vtuan/gate/KeyExpiry.java
+          jar cf /tmp/vtuan-gate.jar -C /tmp/gate-classes .
+          "$ANDROID_HOME/build-tools/35.0.0/d8" --min-api 21 \
+            --lib "$ANDROID_HOME/platforms/android-35/android.jar" \
+            --output /tmp/gate-dex /tmp/vtuan-gate.jar
+          test -s /tmp/gate-dex/classes.dex
+      - name: Decode APK without altering original game smali
+        run: |
+          java -Xmx4g -jar /tmp/apktool.jar d -f -s \
+            /tmp/original-v4.apk -o /tmp/v4-decoded
+          test -s /tmp/v4-decoded/AndroidManifest.xml
+      - name: Replace launcher only, preserve original native code
+        run: |
+          python vtuan_android/v4_game_integration/patch_manifest.py /tmp/v4-decoded/AndroidManifest.xml
+          python - <<'PY'
+          import pathlib,re,shutil
+          directory=pathlib.Path('/tmp/v4-decoded')
+          original=sorted(directory.glob('classes*.dex'))
+          indices=[]
+          for dex in original:
+              m=re.fullmatch(r'classes([2-9][0-9]*)?\.dex',dex.name)
+              if m:
+                  indices.append(int(m.group(1) or 1))
+          assert len(indices)>=6, f'Expected 6 original dex, found {indices}'
+          newindex=max(indices)+1
+          assert not (directory/f'classes{newindex}.dex').exists()
+          shutil.copyfile('/tmp/gate-dex/classes.dex',directory/f'classes{newindex}.dex')
+          print('Retained',len(indices),'original DEX; added classes%d.dex'%newindex)
+          PY
+      - name: Rebuild and locally sign experimental original-V4-based APK
+        run: |
+          mkdir -p /tmp/vtuan-result
+          java -Xmx4g -jar /tmp/apktool.jar b /tmp/v4-decoded \
+            -o /tmp/vtuan-result/unsigned.apk
+          "$ANDROID_HOME/build-tools/35.0.0/zipalign" -f -p 4 \
+            /tmp/vtuan-result/unsigned.apk /tmp/vtuan-result/aligned.apk
+          keytool -genkeypair -noprompt -alias vtuan-testing \
+            -keystore /tmp/vtuan-build.keystore \
+            -storepass changeit -keypass changeit \
+            -keyalg RSA -keysize 3072 -validity 90 \
+            -dname "CN=VTUAN local testing build" >/dev/null 2>&1
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" sign \
+            --ks /tmp/vtuan-build.keystore --ks-key-alias vtuan-testing \
+            --ks-pass pass:changeit --key-pass pass:changeit \
+            --out /tmp/vtuan-result/VTUAN-V4-INTEGRATED-TEST.apk \
+            /tmp/vtuan-result/aligned.apk
+          rm -f /tmp/vtuan-build.keystore /tmp/vtuan-result/aligned.apk /tmp/vtuan-result/unsigned.apk
+      - name: Validate built APK and preserved native code
+        run: |
+          OUT=/tmp/vtuan-result/VTUAN-V4-INTEGRATED-TEST.apk
+          test -s "$OUT"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$OUT"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$OUT" > /tmp/vtuan-result/manifest-check.txt
+          grep -F "name='com.garena.game.kgvn1'" /tmp/vtuan-result/manifest-check.txt
+          grep -F "launchable-activity: name='com.vtuan.v4integration.V4EntryActivity'" /tmp/vtuan-result/manifest-check.txt
+          test "$(unzip -p "$OUT" lib/arm64-v8a/libysmteam.so | sha256sum | cut -d' ' -f1)" = '752bcdc20d88fe535b4de156790e7468bf58c61b21dfd1eba5ee2fbda0facb38'
+          unzip -l "$OUT" | grep -E 'classes7.dex|lib/arm64-v8a/libysmteam.so'
+          unzip -t "$OUT" | tail -1
+          cat > /tmp/vtuan-result/READ_ME_FIRST.txt <<'TXT'
+          Experimental user-authorized V4 original APK repack with VTUAN launch gate.
+          This preserves native libysmteam.so bytes and routes the launcher through
+          an HTTPS VTUAN key entry screen before launching SGameActivity.
+          It DOES NOT replace the original native V4 license/auth system and
+          DOES NOT PROVE AIM/ESP or gameplay works on any device.
+          Debug key is generated fresh on every CI run, and the original APK
+          has a different signature. Do not overwrite or uninstall the original
+          without backing up your own data and understanding game/account risks.
+          No real-device testing was performed by CI.
+          TXT
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VTUAN-V4-ORIGINAL-GAME-WITH-LAUNCH-GATE-EXPERIMENT
+          path: |
+            /tmp/vtuan-result/VTUAN-V4-INTEGRATED-TEST.apk
+            /tmp/vtuan-result/READ_ME_FIRST.txt
+            /tmp/vtuan-result/manifest-check.txt
+          if-no-files-found: error
+          retention-days: 5
