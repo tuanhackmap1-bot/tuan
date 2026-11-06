@@ -55,6 +55,13 @@ jobs:
             /tmp/v4_candidate.apk vtuan_android/v4_native_audit/report
           python vtuan_android/v4_native_audit/inspect_apk_dependencies.py \
             /tmp/v4_candidate.apk vtuan_android/v4_native_audit/report
+          AAPT=$(find "${ANDROID_HOME:-/usr/local/lib/android/sdk}/build-tools" -type f -name aapt 2>/dev/null | sort -V | tail -1)
+          if test -n "$AAPT"; then
+            "$AAPT" dump badging /tmp/v4_candidate.apk | grep -E '^(package:|sdkVersion:|targetSdkVersion:|launchable-activity:|native-code:)' \
+              > vtuan_android/v4_native_audit/report/V4_APK_MANIFEST.txt || true
+          else
+            echo "aapt not installed on audit runner" > vtuan_android/v4_native_audit/report/V4_APK_MANIFEST.txt
+          fi
           rm -f /tmp/v4_candidate.apk
       - name: Verify native call graph evidence consistency
         run: python vtuan_android/v4_native_audit/verify_call_graph.py vtuan_android/v4_native_audit/report/v4_calls.json
