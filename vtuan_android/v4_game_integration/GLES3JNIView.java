@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import com.vtuan.v4integration.V4Session;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -53,12 +54,13 @@ public final class GLES3JNIView extends GLSurfaceView implements GLSurfaceView.R
     public static native String getWindowRect();
     public static native void imgui_Shutdown();
 
-    private boolean initialized=false;
-    private final Handler ui=new Handler(Looper.getMainLooper());
+    private volatile boolean initialized=false;
+    private volatile boolean shutdown=false;
 
     public GLES3JNIView(Activity activity) {
         super(activity);
         setEGLContextClientVersion(3);
+        setPreserveEGLContextOnPause(true);
         setEGLConfigChooser(8,8,8,8,16,8);
         getHolder().setFormat(PixelFormat.TRANSLUCENT);
         setZOrderOnTop(true);
@@ -70,6 +72,7 @@ public final class GLES3JNIView extends GLSurfaceView implements GLSurfaceView.R
     }
 
     @Override public void onSurfaceCreated(GL10 gl,EGLConfig config) {
+        if(shutdown || !V4Session.isValid(System.currentTimeMillis())) return;
         try {
             init();
             initialized=true;
@@ -87,15 +90,23 @@ public final class GLES3JNIView extends GLSurfaceView implements GLSurfaceView.R
     }
 
     @Override public void onDrawFrame(GL10 gl) {
-        if(!initialized)return;
         android.opengl.GLES20.glClearColor(0f,0f,0f,0f);
         android.opengl.GLES20.glClear(android.opengl.GLES20.GL_COLOR_BUFFER_BIT);
+        if(!initialized || shutdown)return;
+        if(!V4Session.isValid(System.currentTimeMillis())) {
+            shutdown=true;
+            initialized=false;
+            try {imgui_Shutdown();}
+            catch(Throwable e){Log.e(TAG,"V4 native shutdown failed",e);}
+            Log.i(TAG,"VTUAN session ended; native V4 rendering stopped");
+            return;
+        }
         try {step();}
         catch(Throwable e){initialized=false;Log.e(TAG,"Native V4 render failed",e);}
     }
 
     @Override public boolean onTouchEvent(MotionEvent event) {
-        if(!initialized)return false;
+        if(!initialized || shutdown || !V4Session.isValid(System.currentTimeMillis()))return false;
         try {
             int action=event.getActionMasked();
             if(action==MotionEvent.ACTION_DOWN||action==MotionEvent.ACTION_UP||
@@ -144,6 +155,17 @@ public final class GLES3JNIView extends GLSurfaceView implements GLSurfaceView.R
         catch(Throwable e){Log.e(TAG,"Could not resume GL renderer",e);}
     }
     public void detach(){
+        // Native teardown is queued on the EGL thread while it still owns the context.
+        if(initialized && !shutdown){
+            try {queueEvent(() -> {
+                if(!shutdown){
+                    shutdown=true;
+                    initialized=false;
+                    try {imgui_Shutdown();}
+                    catch(Throwable e){Log.e(TAG,"V4 teardown failed",e);}
+                }
+            });}catch(Throwable e){Log.e(TAG,"Could not queue V4 teardown",e);}
+        }
         initialized=false;
         suspend();
         try {
