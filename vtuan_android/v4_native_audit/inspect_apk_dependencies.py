@@ -38,7 +38,7 @@ def collect_native_entries(names):
                   if re.fullmatch(r"lib/[^/]+/[^/]+\.so", n))
 
 def count_dex_entries(names):
-    return sum(bool(re.fullmatch(r"classes(?:[2-9][0-9]*)?\.dex", n))
+    return sum(bool(re.fullmatch(r"classes(?:[2-9]|[1-9][0-9]+)?\.dex", n))
                for n in names)
 
 def inspect(path):
