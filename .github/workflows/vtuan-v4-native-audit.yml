@@ -37,6 +37,8 @@ jobs:
           python vtuan_android/v4_native_audit/inspect_v4_login.py \
             /tmp/v4_candidate.apk vtuan_android/v4_native_audit/report
           rm -f /tmp/v4_candidate.apk
+      - name: Verify native call graph evidence consistency
+        run: python vtuan_android/v4_native_audit/verify_call_graph.py vtuan_android/v4_native_audit/report/v4_calls.json
       - uses: actions/upload-artifact@v4
         with:
           name: v4-native-feature-offset-audit
