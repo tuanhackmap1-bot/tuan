@@ -142,7 +142,18 @@ public final class KeyActivity extends Activity {
     submit.setOnClickListener(v->activate());
     if(auto.isChecked() && previous!=null && !previous.isEmpty()) activate();
   }
+  /** Per-install opaque identifier. No machine-code entry required. */
+  private String deviceId() {
+    String id=prefs.getString("vtuan_install_device_id","");
+    if(id.matches("[A-Za-z0-9._:-]{8,128}"))return id;
+    id=java.util.UUID.randomUUID().toString();
+    prefs.edit().putString("vtuan_install_device_id",id).apply();
+    return id;
+  }
   private JSONObject request(String endpoint,JSONObject data) throws Exception {
+    // Both activation and verification use one persistent installation ID,
+    // allowing a shared key to count each Android installation once.
+    data.put("device_id",deviceId());
     HttpURLConnection c=null;
     try {
       c=(HttpURLConnection)new URL(HOST+endpoint).openConnection();
