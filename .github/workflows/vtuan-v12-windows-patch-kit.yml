@@ -80,6 +80,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: VTUAN-V12-WINDOWS-PATCH-KIT
-          path: ${{ runner.temp }}/VTUAN_V12_WINDOWS_PATCH_KIT.zip
+          path: ${{ runner.temp }}/VTUAN_V12_WINDOWS_PATCH_KIT/*
           if-no-files-found: error
           retention-days: 7
