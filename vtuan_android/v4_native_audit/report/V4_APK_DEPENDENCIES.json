@@ -1,0 +1,24 @@
+{
+  "apk_name": "v4_candidate.apk",
+  "apk_bytes": 226470689,
+  "v4_lib_sha256": "752bcdc20d88fe535b4de156790e7468bf58c61b21dfd1eba5ee2fbda0facb38",
+  "v4_lib_bytes": 9055952,
+  "dex_count": 0,
+  "native_so_count": 0,
+  "abi_counts": {},
+  "interesting_libraries_packaged": {
+    "libysmteam.so": 0,
+    "libil2cpp.so": 0,
+    "libgcloud.so": 0,
+    "libunity.so": 0,
+    "libmain.so": 0,
+    "libc++_shared.so": 0,
+    "libdobby.so": 0
+  },
+  "libraries_not_in_base_archive": [
+    "libgcloud.so",
+    "libil2cpp.so"
+  ],
+  "dependency_info": {},
+  "caveat": "An absent .so in a single APK can exist in a split APK, dynamic download, or app-private storage. DT_NEEDED lists are static and do not cover dlopen, JNI reflection, or game behavior."
+}
