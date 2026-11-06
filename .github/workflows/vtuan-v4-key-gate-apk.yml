@@ -5,6 +5,7 @@ on:
     branches: [vtuan-v4-native-audit]
     paths:
       - 'vtuan_android/gate_v4/**'
+      - 'vtuan_android/gate_v4_tests/**'
       - '.github/workflows/vtuan-v4-key-gate-apk.yml'
 permissions:
   contents: read
@@ -21,6 +22,13 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
+      - name: Test key expiration parsing on JVM
+        run: |
+          mkdir -p /tmp/vtuan-key-tests
+          javac -encoding UTF-8 -d /tmp/vtuan-key-tests \\
+            vtuan_android/gate_v4/KeyExpiry.java \\
+            vtuan_android/gate_v4_tests/KeyExpiryTest.java
+          java -cp /tmp/vtuan-key-tests com.vtuan.gate.KeyExpiryTest
       - name: Install Android SDK
         run: |
           SDKM=$(find "${ANDROID_HOME:-/usr/local/lib/android/sdk}/cmdline-tools" -type f -name sdkmanager | head -1)
