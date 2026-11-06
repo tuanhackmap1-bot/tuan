@@ -9,6 +9,21 @@ on:
 permissions:
   contents: write
 jobs:
+  regression:
+    name: Verify checked-in V4 evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate stored call graph
+        run: python vtuan_android/v4_native_audit/verify_call_graph.py vtuan_android/v4_native_audit/report/v4_calls.json
+      - name: Run audit regression tests
+        run: python -m unittest discover -s vtuan_android/v4_native_audit -p 'test_*.py' -v
   audit:
     runs-on: ubuntu-latest
     timeout-minutes: 15
