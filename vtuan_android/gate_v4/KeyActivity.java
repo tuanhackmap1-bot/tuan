@@ -19,7 +19,7 @@ public final class KeyActivity extends Activity {
   private EditText input;
   private CheckBox save,auto;
   private TextView status;
-  private Button submit;
+  private Button submit, launch;
   private SharedPreferences prefs;
   private boolean busy=false;
 
@@ -82,6 +82,14 @@ public final class KeyActivity extends Activity {
     panel.addView(buttons,item(-1,-2,4));
     status=text("Nhập key VTUAN để kích hoạt",11,0xffd5b3ef,false);
     panel.addView(status,item(-1,-2,10));
+    launch=new Button(this);
+    launch.setText("Vào Liên Quân");
+    launch.setTextColor(Color.WHITE);
+    launch.setAllCaps(false);
+    launch.setBackground(bg(0xff7b36c0,0,20));
+    launch.setVisibility(View.GONE);
+    panel.addView(launch,item(-1,44,9));
+    launch.setOnClickListener(v->openGame());
     String previous=prefs.getString("activated_key","");
     if(previous!=null&&!previous.isEmpty()) {input.setText(previous);save.setChecked(true);}
     auto.setChecked(prefs.getBoolean("auto",false));
@@ -117,10 +125,23 @@ public final class KeyActivity extends Activity {
     } finally{c.disconnect();}
     return new JSONObject(result.toString());
   }
+  private void openGame(){
+    try{
+      Intent intent=getPackageManager().getLaunchIntentForPackage("com.garena.game.kgvn");
+      if(intent==null){
+        status.append("\\nKhông tìm thấy Liên Quân đã cài.");
+        return;
+      }
+      startActivity(intent);
+    }catch(Exception ignored){
+      status.append("\\nKhông thể mở Liên Quân trên thiết bị này.");
+    }
+  }
   private void activate(){
     if(busy)return;
     String key=input.getText().toString().trim();
-    if(key.isEmpty()){status.setText("Vui lòng nhập key");return;}
+    if(key.length()<8 || key.length()>160){status.setText("Key phải dài từ 8 đến 160 ký tự.");return;}
+    launch.setVisibility(View.GONE);
     busy=true;submit.setEnabled(false);status.setText("Đang kiểm tra key...");
     new Thread(()->{
       try{
@@ -137,18 +158,17 @@ public final class KeyActivity extends Activity {
             String msg=response.optString("message",response.optString("error","Key không hợp lệ"));
             status.setText(msg.length()>150?msg.substring(0,150):msg);return;
           }
+          int days=response.optInt("duration_days",0);
+          String expiry=response.optString("expires_at","");
+          if(days<=0 || expiry.isEmpty()){
+            status.setText("Phản hồi máy chủ thiếu thông tin thời hạn. Không chấp nhận.");
+            return;
+          }
           if(save.isChecked())prefs.edit().putString("activated_key",key).putBoolean("auto",auto.isChecked()).apply();
           else prefs.edit().remove("activated_key").putBoolean("auto",false).apply();
-          status.setText("Key hợp lệ - đang mở Liên Quân...");
-          try{
-            Intent i=getPackageManager().getLaunchIntentForPackage("com.garena.game.kgvn");
-            if(i==null) {
-              status.setText("Key hợp lệ. Chưa tìm thấy ứng dụng Liên Quân để mở.");
-              return;
-            }
-            startActivity(i);
-            finish();
-          }catch(Exception e){status.setText("Đã xác thực key nhưng không mở được game.");}
+          status.setText("✓ Key hợp lệ\\nGói: "+days+" ngày\\nHết hạn: "+expiry.replace('T',' '));
+          launch.setVisibility(View.VISIBLE);
+          if(auto.isChecked())openGame();
         });
       }catch(Exception e){
         runOnUiThread(()->{busy=false;submit.setEnabled(true);status.setText("Không kết nối được máy chủ VTUAN.");});
