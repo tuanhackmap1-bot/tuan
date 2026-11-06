@@ -247,23 +247,31 @@ public final class KeyActivity extends Activity {
       return;
     }
     try{
-      // Verified V4 archive uses kgvn1; fall back to the official package.
-      Intent intent;
-      if("com.garena.game.kgvn".equals(getPackageName())) {
-        // Avoid restarting this key screen in the embedded APK.
+      // An APK host may declare its original launch target in app metadata.
+      android.content.pm.ApplicationInfo appInfo=getPackageManager().getApplicationInfo(
+          getPackageName(),android.content.pm.PackageManager.GET_META_DATA);
+      String embeddedTarget=appInfo.metaData==null?null:
+          appInfo.metaData.getString("vtuan.original_launcher");
+      Intent intent=null;
+      if(embeddedTarget!=null && !embeddedTarget.isEmpty()){
+        intent=new Intent();
+        intent.setClassName(getPackageName(),embeddedTarget);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+      }else if("com.garena.game.kgvn".equals(getPackageName())){
         intent=new Intent();
         intent.setClassName("com.garena.game.kgvn","com.garena.game.kgtw.SGameActivity");
-      } else {
+      }else{
         intent=getPackageManager().getLaunchIntentForPackage("com.garena.game.kgvn1");
         if(intent==null)intent=getPackageManager().getLaunchIntentForPackage("com.garena.game.kgvn");
-        if(intent==null){
-          status.append("\nKhông tìm thấy Liên Quân đã cài.");
-          return;
-        }
+      }
+      if(intent==null){
+        status.append("\nKhông tìm thấy ứng dụng đích.");
+        return;
       }
       startActivity(intent);
+      if(embeddedTarget!=null && !embeddedTarget.isEmpty())finish();
     }catch(Exception ignored){
-      status.append("\nKhông thể mở Liên Quân trên thiết bị này.");
+      status.append("\nKhông thể mở giao diện đích trên thiết bị này.");
     }
   }
   private void activate(){
