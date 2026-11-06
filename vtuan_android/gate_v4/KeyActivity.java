@@ -7,6 +7,8 @@ import android.graphics.drawable.GradientDrawable;
 import android.content.*;
 import android.content.res.ColorStateList;
 import android.view.*;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.*;
 import org.json.JSONObject;
 import java.net.*;
@@ -90,6 +92,13 @@ public final class KeyActivity extends Activity {
     launch.setVisibility(View.GONE);
     panel.addView(launch,item(-1,44,9));
     launch.setOnClickListener(v->openGame());
+    input.addTextChangedListener(new TextWatcher(){
+      @Override public void beforeTextChanged(CharSequence value,int start,int count,int after){}
+      @Override public void onTextChanged(CharSequence value,int start,int before,int count){
+        launch.setVisibility(View.GONE);
+      }
+      @Override public void afterTextChanged(Editable value){}
+    });
     String previous=prefs.getString("activated_key","");
     if(previous!=null&&!previous.isEmpty()) {input.setText(previous);save.setChecked(true);}
     auto.setChecked(prefs.getBoolean("auto",false));
