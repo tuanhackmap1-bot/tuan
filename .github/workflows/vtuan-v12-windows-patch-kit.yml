@@ -1,0 +1,85 @@
+name: Build VTUAN V12 Windows patch kit
+on:
+  workflow_dispatch:
+  push:
+    branches: [vtuan-v4-native-audit]
+    paths:
+      - 'vtuan_android/tool_v12_key_patch/**'
+      - 'vtuan_android/gate_v4/**'
+      - '.github/workflows/vtuan-v12-windows-patch-kit.yml'
+permissions:
+  contents: read
+jobs:
+  test-and-package:
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Install Android SDK platform and build tools
+        shell: pwsh
+        run: |
+          if (-not $env:ANDROID_HOME) { throw 'ANDROID_HOME is missing' }
+          $sdkm = Get-ChildItem "$env:ANDROID_HOME\cmdline-tools" -Filter sdkmanager.bat -Recurse | Select-Object -First 1
+          if (!$sdkm) { throw 'sdkmanager unavailable' }
+          & $sdkm.FullName 'platforms;android-35' 'build-tools;35.0.0'
+          if ($LASTEXITCODE -ne 0) { throw 'Android SDK install failed' }
+      - name: Build gate APK and test host
+        shell: pwsh
+        run: |
+          gradle --no-daemon -p vtuan_android/gate_v4 :app:assembleDebug
+          if ($LASTEXITCODE -ne 0) { throw 'Gate build failed' }
+          gradle --no-daemon -p vtuan_android/tool_v12_key_patch/fixture assembleDebug
+          if ($LASTEXITCODE -ne 0) { throw 'Fixture build failed' }
+      - name: Test Python injector
+        shell: pwsh
+        run: |
+          python -m unittest -v vtuan_android/tool_v12_key_patch/test_patch_host.py
+          if ($LASTEXITCODE -ne 0) { throw 'Python injector tests failed' }
+      - name: Package and smoke-test Windows one-click patcher
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $source = (Get-Location).Path
+          $smoke = Join-Path $env:RUNNER_TEMP 'vtuan-smoke'
+          New-Item -ItemType Directory -Force $smoke | Out-Null
+          $src = Join-Path $source 'vtuan_android/tool_v12_key_patch'
+          Copy-Item "$src/patch_host.py" $smoke
+          Copy-Item "$src/patch_on_windows.ps1" $smoke
+          Copy-Item "$src/RUN_PATCH_WINDOWS.bat" $smoke
+          Copy-Item "$src/README_WINDOWS.txt" $smoke
+          Copy-Item "$source/vtuan_android/gate_v4/app/build/outputs/apk/debug/app-debug.apk" (Join-Path $smoke 'VTUAN_GATE.apk')
+          $hostApk = Get-ChildItem "$source/vtuan_android/tool_v12_key_patch/fixture/build/outputs/apk" -Filter '*debug.apk' -Recurse | Select-Object -First 1
+          if (!$hostApk) { throw 'No fixture APK' }
+          & "$smoke/patch_on_windows.ps1" -SourceApk $hostApk.FullName
+          if ($LASTEXITCODE -ne 0) { throw 'Windows patcher failed' }
+          $patched = Join-Path $smoke 'TTS_TOOL_V12.1_VTUAN_KEY_PATCHED.apk'
+          if (!(Test-Path $patched)) { throw 'No patched APK' }
+          & "$smoke/build-tools/apksigner.bat" verify --verbose $patched
+          if ($LASTEXITCODE -ne 0) { throw 'Patched APK signature verification failed' }
+          $badging = & "$env:ANDROID_HOME/build-tools/35.0.0/aapt.exe" dump badging $patched
+          if ($LASTEXITCODE -ne 0 -or !($badging -match "launchable-activity: name='com.vtuan.gate.KeyActivity'")) {
+            throw 'Patched launcher is not the VTUAN key screen'
+          }
+          $kit = Join-Path $env:RUNNER_TEMP 'VTUAN_V12_WINDOWS_PATCH_KIT'
+          New-Item -ItemType Directory -Force $kit | Out-Null
+          foreach ($name in @('patch_host.py', 'patch_on_windows.ps1', 'RUN_PATCH_WINDOWS.bat', 'README_WINDOWS.txt', 'VTUAN_GATE.apk', 'apktool_2.11.1.jar')) {
+            Copy-Item (Join-Path $smoke $name) $kit
+          }
+          Compress-Archive -Path "$kit/*" -DestinationPath "$env:RUNNER_TEMP/VTUAN_V12_WINDOWS_PATCH_KIT.zip" -Force
+          Get-Item "$env:RUNNER_TEMP/VTUAN_V12_WINDOWS_PATCH_KIT.zip" | Select-Object Name,Length
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VTUAN-V12-WINDOWS-PATCH-KIT
+          path: ${{ runner.temp }}/VTUAN_V12_WINDOWS_PATCH_KIT.zip
+          if-no-files-found: error
+          retention-days: 7
