@@ -1,0 +1,49 @@
+name: Verify and audit V4 native offsets
+on:
+  workflow_dispatch:
+  push:
+    branches: [vtuan-v4-native-audit]
+    paths:
+      - 'vtuan_android/v4_native_audit/**'
+      - '.github/workflows/vtuan-v4-native-audit.yml'
+permissions:
+  contents: write
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install static analysis dependencies
+        run: python -m pip install capstone==5.0.6 pyelftools==0.32
+      - name: Download public original V4 candidate (never execute APK)
+        run: |
+          curl --fail --location --retry 3 --retry-delay 2 \
+            --connect-timeout 25 --max-time 500 \
+            --user-agent "Mozilla/5.0" \
+            --referer "https://appinstall.cloud/install/7jbdxgs77777" \
+            "https://appinstall.cloud/package-cache/7jbdxgs77777/nmj0zeu-f3523-fast.apk?pcv=20260910-direct-cdn-v1&r2p=1" \
+            --output /tmp/v4_candidate.apk
+          test "$(stat -c%s /tmp/v4_candidate.apk)" -gt 200000000
+      - name: Analyze only when library SHA-256 matches known V4
+        run: |
+          python vtuan_android/v4_native_audit/audit_v4_native.py \
+            /tmp/v4_candidate.apk vtuan_android/v4_native_audit/report
+          rm -f /tmp/v4_candidate.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v4-native-feature-offset-audit
+          path: vtuan_android/v4_native_audit/report/
+          if-no-files-found: error
+      - name: Commit verified text-only native audit
+        run: |
+          git config user.name "vtuan-ci"
+          git config user.email "vtuan-ci@users.noreply.github.com"
+          git add vtuan_android/v4_native_audit/report/
+          if ! git diff --cached --quiet; then
+            git commit -m "Report hash-verified V4 native code references"
+            git push origin HEAD:vtuan-v4-native-audit
+          fi
