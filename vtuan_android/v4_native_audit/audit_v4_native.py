@@ -103,6 +103,30 @@ def main(apk_name: str, output_dir: str):
                 pages.pop(ops[0].reg, None)
             elif insn.mnemonic.startswith("b.") or insn.mnemonic in ("bl", "ret", "b"):
                 pages.clear()
+    # ELF unwind FDEs, when present, identify actual native function ranges.
+    native_ranges = []
+    unwind_status = "absent"
+    try:
+        from elftools.dwarf.callframe import FDE
+        dwarf = elf.get_dwarf_info()
+        for entry in dwarf.EH_CFI_entries():
+            if isinstance(entry, FDE):
+                begin = int(entry["initial_location"])
+                end = begin + int(entry["address_range"])
+                if 0 <= begin < end:
+                    native_ranges.append((begin, end))
+        native_ranges.sort()
+        unwind_status = "parsed"
+    except Exception as exc:
+        unwind_status = type(exc).__name__
+    native_starts = [x[0] for x in native_ranges]
+
+    def enclosing_unwind_function(rva: int):
+        idx = bisect.bisect_right(native_starts, rva) - 1
+        if idx >= 0 and rva < native_ranges[idx][1]:
+            return native_ranges[idx][0]
+        return None
+
     exports = []
     dynsym = elf.get_section_by_name(".dynsym")
     if dynsym:
@@ -113,6 +137,10 @@ def main(apk_name: str, output_dir: str):
     for rva, item in sorted(labels.items()):
         item = dict(item)
         item["code_refs_rva"] = sorted(crossrefs[rva])[:60]
+        item["enclosing_unwind_functions"] = sorted({
+            v for ref in item["code_refs_rva"]
+            if (v := enclosing_unwind_function(ref)) is not None
+        })
         items.append(item)
     report = {
         "apk_file": Path(apk_name).name,
@@ -123,6 +151,9 @@ def main(apk_name: str, output_dir: str):
         "addresses_are": "RVA relative to libysmteam.so, NOT IL2CPP/game offsets",
         "not_verified": "Which code refs implement ESP/AIM/hack map, game-version compatibility, in-game behavior",
         "decoded_arm64_instructions": insn_count,
+        "elf_section_names": [section.name for section in elf.iter_sections()],
+        "unwind_fde_function_ranges": len(native_ranges),
+        "unwind_parse_status": unwind_status,
         "exported_native_functions": exports,
         "candidate_feature_strings": items,
     }
@@ -132,6 +163,7 @@ def main(apk_name: str, output_dir: str):
         "",
         f"Verified libysmteam.so SHA-256: \`{sha}\`",
         f"Native bytes: {len(binary):,}; ARM64 instructions decoded: {insn_count:,}",
+        f"ELF unwind function ranges: {len(native_ranges):,}; parsing: {unwind_status}",
         "",
         "**Important:** All hexadecimal addresses below are *library-relative RVAs*. "
         "They are not proven offsets to game functions or working hooks.",
@@ -140,13 +172,14 @@ def main(apk_name: str, output_dir: str):
         "",
         "## Candidate menu/feature references",
         "",
-        "| String RVA | Text (truncated) | ARM64 code-reference RVAs |",
-        "|---|---|---|",
+        "| String RVA | Text (truncated) | ARM64 code-reference RVAs | Enclosing native function RVAs (unwind) |",
+        "|---|---|---|---|",
     ]
     for item in items[:250]:
         raw = item["text"].replace("|", "/").replace("\n"," ")
         refs = ", ".join("0x%x" % x for x in item["code_refs_rva"][:10]) or "not found"
-        lines.append(f"| \`0x{item['rva']:x}\` | {raw[:72]} | {refs} |")
+        fns = ", ".join("0x%x" % x for x in item["enclosing_unwind_functions"][:8]) or "not available"
+        lines.append(f"| `0x{item['rva']:x}` | {raw[:72]} | {refs} | {fns} |")
     if len(items) > 250:
         lines.append(f"\n_Only first 250 strings displayed; JSON has all {len(items)} entries._")
     lines += ["", "## Exported native functions", ""]
