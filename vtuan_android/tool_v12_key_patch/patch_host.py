@@ -185,7 +185,7 @@ def verify_unchanged_payload(original_apk: Path, patched_apk: Path) -> int:
     with zipfile.ZipFile(original_apk) as source, zipfile.ZipFile(patched_apk) as target:
         original = {x.filename: x for x in source.infolist()
                     if (x.filename.startswith(("lib/", "assets/")) or
-                        re.fullmatch(r"classes\\d*\\.dex", x.filename)) and
+                        re.fullmatch(r"classes\d*\.dex", x.filename)) and
                     not x.is_dir()}
         output = {x.filename: x for x in target.infolist()}
         for name, before in original.items():
