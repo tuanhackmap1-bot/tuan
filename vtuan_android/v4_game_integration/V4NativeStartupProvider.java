@@ -26,7 +26,12 @@ public final class V4NativeStartupProvider extends ContentProvider {
     private static final String TAG="VTUAN_V4_BOOT";
     private static final String GAME_ACTIVITY="com.garena.game.kgtw.SGameActivity";
     private final Handler ui=new Handler(Looper.getMainLooper());
-    private final Set<Activity> attached=Collections.newSetFromMap(new WeakHashMap<Activity,Boolean>());
+    private final java.util.Map<Activity,GLES3JNIView> attached=
+        new WeakHashMap<Activity,GLES3JNIView>();
+    private final Set<Activity> pending=Collections.newSetFromMap(
+        new WeakHashMap<Activity,Boolean>());
+    private final Set<Activity> resumed=Collections.newSetFromMap(
+        new WeakHashMap<Activity,Boolean>());
 
     @Override public boolean onCreate() {
         Context context=getContext();
@@ -38,30 +43,48 @@ public final class V4NativeStartupProvider extends ContentProvider {
             @Override public void onActivityStarted(Activity a){}
             @Override public void onActivityResumed(Activity a){
                 if(!GAME_ACTIVITY.equals(a.getClass().getName()))return;
-                boolean wanted=V4Session.isValid(System.currentTimeMillis());
-                if(!wanted){
+                resumed.add(a);
+                GLES3JNIView existing=attached.get(a);
+                if(existing!=null){
+                    existing.resumeRendering();
+                    return;
+                }
+                if(!V4Session.isValid(System.currentTimeMillis())){
                     Log.i(TAG,"No verified VTUAN session; native bridge not loaded");
                     return;
                 }
-                if(attached.contains(a))return;
-                attached.add(a);
-                // Let the original activity finish creating the Unity surface first.
+                if(!pending.add(a))return;
+                // Let Unity initialize its own surface before attaching the V4 GLES UI.
                 ui.postDelayed(() -> {
-                    if(a.isFinishing()||a.isDestroyed())return;
+                    pending.remove(a);
+                    if(a.isFinishing()||a.isDestroyed()||!resumed.contains(a))return;
                     if(!V4Session.isValid(System.currentTimeMillis())){
                         Log.i(TAG,"VTUAN session expired before native startup");
                         return;
                     }
+                    if(attached.containsKey(a))return;
                     Log.i(TAG,"Attempting original V4 JNI/EGL bootstrap");
-                    if(!GLES3JNIView.attach(a)){
+                    GLES3JNIView view=GLES3JNIView.attach(a);
+                    if(view==null){
                         Log.e(TAG,"Original native renderer was not attached");
+                    } else {
+                        attached.put(a,view);
                     }
                 },2500);
             }
-            @Override public void onActivityPaused(Activity a){}
+            @Override public void onActivityPaused(Activity a){
+                resumed.remove(a);
+                GLES3JNIView view=attached.get(a);
+                if(view!=null)view.suspend();
+            }
             @Override public void onActivityStopped(Activity a){}
             @Override public void onActivitySaveInstanceState(Activity a,Bundle b){}
-            @Override public void onActivityDestroyed(Activity a){attached.remove(a);}
+            @Override public void onActivityDestroyed(Activity a){
+                resumed.remove(a);
+                pending.remove(a);
+                GLES3JNIView view=attached.remove(a);
+                if(view!=null)view.detach();
+            }
         });
         Log.i(TAG,"V4 activity lifecycle bridge installed");
         return true;
