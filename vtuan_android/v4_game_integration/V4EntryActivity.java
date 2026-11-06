@@ -60,6 +60,7 @@ public final class V4EntryActivity extends Activity {
     }
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
+        V4Session.clear();
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         FrameLayout base = new FrameLayout(this);
         base.setBackgroundColor(0xff191026);
@@ -173,6 +174,11 @@ public final class V4EntryActivity extends Activity {
                         status.setText("Key bị từ chối hoặc đã hết hạn; kiểm tra key/server.");
                         return;
                     }
+                    V4Session.approve(expiryMs==null?0L:expiryMs,System.currentTimeMillis());
+                    if(!V4Session.isValid(System.currentTimeMillis())){
+                        status.setText("Phiên VTUAN không hợp lệ. Hãy xác thực lại.");
+                        return;
+                    }
                     status.setText("Key VTUAN hợp lệ. Đang mở game V4 gốc...");
                     try {
                         Intent game=new Intent();
@@ -181,6 +187,7 @@ public final class V4EntryActivity extends Activity {
                         startActivity(game);
                         finish();
                     }catch(Exception e) {
+                        V4Session.clear();
                         status.setText("Không mở được Activity gốc: "+ORIGINAL_ACTIVITY);
                     }
                 });
