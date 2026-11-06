@@ -28,8 +28,8 @@ public final class V4NativeStartupProvider extends ContentProvider {
     private final Handler ui=new Handler(Looper.getMainLooper());
     private final java.util.Map<Activity,GLES3JNIView> attached=
         new WeakHashMap<Activity,GLES3JNIView>();
-    private final Set<Activity> pending=Collections.newSetFromMap(
-        new WeakHashMap<Activity,Boolean>());
+    private final java.util.Map<Activity,Runnable> pending=
+        new WeakHashMap<Activity,Runnable>();
     private final Set<Activity> resumed=Collections.newSetFromMap(
         new WeakHashMap<Activity,Boolean>());
 
@@ -53,9 +53,9 @@ public final class V4NativeStartupProvider extends ContentProvider {
                     Log.i(TAG,"No verified VTUAN session; native bridge not loaded");
                     return;
                 }
-                if(!pending.add(a))return;
+                if(pending.containsKey(a))return;
                 // Let Unity initialize its own surface before attaching the V4 GLES UI.
-                ui.postDelayed(() -> {
+                Runnable task=() -> {
                     pending.remove(a);
                     if(a.isFinishing()||a.isDestroyed()||!resumed.contains(a))return;
                     if(!V4Session.isValid(System.currentTimeMillis())){
@@ -70,10 +70,14 @@ public final class V4NativeStartupProvider extends ContentProvider {
                     } else {
                         attached.put(a,view);
                     }
-                },2500);
+                };
+                pending.put(a,task);
+                ui.postDelayed(task,2500);
             }
             @Override public void onActivityPaused(Activity a){
                 resumed.remove(a);
+                Runnable task=pending.remove(a);
+                if(task!=null)ui.removeCallbacks(task);
                 GLES3JNIView view=attached.get(a);
                 if(view!=null)view.suspend();
             }
@@ -81,7 +85,8 @@ public final class V4NativeStartupProvider extends ContentProvider {
             @Override public void onActivitySaveInstanceState(Activity a,Bundle b){}
             @Override public void onActivityDestroyed(Activity a){
                 resumed.remove(a);
-                pending.remove(a);
+                Runnable task=pending.remove(a);
+                if(task!=null)ui.removeCallbacks(task);
                 GLES3JNIView view=attached.remove(a);
                 if(view!=null)view.detach();
             }
