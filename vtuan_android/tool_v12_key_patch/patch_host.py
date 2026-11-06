@@ -84,14 +84,27 @@ def patch_manifest(path: Path) -> tuple[str, str]:
     gate.set(ANDROID + "theme", "@android:style/Theme.Material.Light.NoActionBar")
 
     if holder.tag == "activity-alias":
-        # A launcher alias retains its package-visible identity and icon.
-        # Android requires the target activity to be declared before an alias.
+        # Keep an existing alias for its icon/label/shortcuts, redirecting it
+        # to the new key gate. The original implementation stays in-app.
         holder.set(ANDROID + "targetActivity", GATE)
         app.insert(list(app).index(holder), gate)
+        original_activity = next(
+            (candidate for candidate in app.findall("activity")
+             if normalize_activity(package, candidate.get(ANDROID + "name", "")) == original),
+            None)
+        if original_activity is None:
+            raise ValueError("Launcher alias references an undeclared activity")
+        if not original_activity.findall("intent-filter"):
+            original_activity.set(ANDROID + "exported", "false")
     else:
         holder.remove(launch_filter)
         gate.append(copy.deepcopy(launch_filter))
         app.append(gate)
+        # A direct launcher with no other public intent filters should not
+        # remain externally startable after the VTUAN gate takes over.
+        # Existing deep links or public intents are left unchanged.
+        if not holder.findall("intent-filter"):
+            holder.set(ANDROID + "exported", "false")
 
     meta = ET.SubElement(app, "meta-data")
     meta.set(ANDROID + "name", KEY_META)
