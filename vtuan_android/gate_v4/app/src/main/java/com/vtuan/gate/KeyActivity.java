@@ -124,6 +124,10 @@ public final class KeyActivity extends Activity {
     overlay.setVisibility(View.GONE);
     panel.addView(overlay,item(-1,44,9));
     overlay.setOnClickListener(v->startKeyOverlay());
+    if(embeddedTarget()!=null){
+      launch.setText("Mở ứng dụng");
+      overlay.setVisibility(View.GONE);
+    }
     input.addTextChangedListener(new TextWatcher(){
       @Override public void beforeTextChanged(CharSequence value,int start,int count,int after){}
       @Override public void onTextChanged(CharSequence value,int start,int before,int count){
@@ -240,6 +244,13 @@ public final class KeyActivity extends Activity {
       status.setText("Không thể bật menu nổi trên thiết bị này.");
     }
   }
+  private String embeddedTarget(){
+    try{
+      android.content.pm.ApplicationInfo info=getPackageManager().getApplicationInfo(
+        getPackageName(),android.content.pm.PackageManager.GET_META_DATA);
+      return info.metaData==null?null:info.metaData.getString("vtuan.original_launcher");
+    }catch(Exception ignored){return null;}
+  }
   private void openGame(){
     if(!hasVerifiedKey()){
       status.setText("Hãy xác thực key hiện tại trước khi mở game.");
@@ -248,10 +259,7 @@ public final class KeyActivity extends Activity {
     }
     try{
       // An APK host may declare its original launch target in app metadata.
-      android.content.pm.ApplicationInfo appInfo=getPackageManager().getApplicationInfo(
-          getPackageName(),android.content.pm.PackageManager.GET_META_DATA);
-      String embeddedTarget=appInfo.metaData==null?null:
-          appInfo.metaData.getString("vtuan.original_launcher");
+      String embeddedTarget=embeddedTarget();
       Intent intent=null;
       if(embeddedTarget!=null && !embeddedTarget.isEmpty()){
         intent=new Intent();
@@ -323,7 +331,7 @@ public final class KeyActivity extends Activity {
                   "\nGói: "+days+" ngày\nHết hạn: "+expiry.replace('T',' ')+
                   "\nCòn lại (ước tính): "+KeyExpiry.remainingText(expiry,System.currentTimeMillis()));
           launch.setVisibility(View.VISIBLE);
-          overlay.setVisibility(View.VISIBLE);
+          overlay.setVisibility(embeddedTarget()==null?View.VISIBLE:View.GONE);
           if(auto.isChecked())openGame();
         });
       }catch(Exception e){
