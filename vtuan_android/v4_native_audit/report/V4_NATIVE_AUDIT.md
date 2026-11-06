@@ -1,7 +1,7 @@
 # V4 native feature candidate audit
 
 Verified libysmteam.so SHA-256: \`752bcdc20d88fe535b4de156790e7468bf58c61b21dfd1eba5ee2fbda0facb38\`
-Native bytes: 9,055,952; ARM64 instructions decoded: 0
+Native bytes: 9,055,952; ARM64 instructions decoded: 785,928
 
 **Important:** All hexadecimal addresses below are *library-relative RVAs*. They are not proven offsets to game functions or working hooks.
 
@@ -17,110 +17,110 @@ Candidate strings: 113; exports: 5493
 | \`0x40b01\` | d2i_ASN1_VISIBLESTRING | not found |
 | \`0x40c90\` | i2d_ASN1_VISIBLESTRING | not found |
 | \`0x3cd300\` | Aim HP Lowest | not found |
-| \`0x3cd30e\` | Aim HP % | not found |
+| \`0x3cd30e\` | Aim HP % | 0x3bcbd4, 0x3bcbdc, 0x3bf308, 0x3bf310 |
 | \`0x3cd37f\` | ng Aim | not found |
-| \`0x3cd3cf\` | [HideSkinLSD] player=%u hero=%u skin=%u -> %u | not found |
-| \`0x3cd45d\` | ResHeroSkin | not found |
-| \`0x3cd488\` | HeroSelectNormalWindow | not found |
-| \`0x3cd49f\` | RefreshHeroPanel | not found |
-| \`0x3cd4b0\` | OnClickSelectHeroSkin | not found |
-| \`0x3cd4d0\` | IsHaveHeroSkin | not found |
-| \`0x3cd4f4\` | IsHaveHeroSkin(bool) | not found |
-| \`0x3cd528\` | GetHeroSkin | not found |
-| \`0x3cd570\` | ConvertServerHeroInfo | not found |
-| \`0x3cd5cc\` | SkillControlIndicator | not found |
-| \`0x3cd5e2\` | GetUseSkillDirection | not found |
+| \`0x3cd3cf\` | [HideSkinLSD] player=%u hero=%u skin=%u -> %u | 0xe72b0, 0xe72b8, 0x289eb8, 0x289ec0, 0x3bdd48, 0x3bdd4c |
+| \`0x3cd45d\` | ResHeroSkin | 0xebe84, 0xebe94 |
+| \`0x3cd488\` | HeroSelectNormalWindow | 0xebeb4, 0xebec4, 0xebee4, 0xebef4 |
+| \`0x3cd49f\` | RefreshHeroPanel | 0xebeb8, 0xebec8 |
+| \`0x3cd4b0\` | OnClickSelectHeroSkin | 0xebee8, 0xebef8, 0xebf3c, 0xebf48, 0xebf60, 0xebf6c |
+| \`0x3cd4d0\` | IsHaveHeroSkin | 0xebf84, 0xebf98 |
+| \`0x3cd4f4\` | IsHaveHeroSkin(bool) | 0xebfe4, 0xebff0, 0xec008, 0xec014 |
+| \`0x3cd528\` | GetHeroSkin | 0xec164, 0xec174, 0xec1b8, 0xec1c4, 0xec1dc, 0xec1e8 |
+| \`0x3cd570\` | ConvertServerHeroInfo | 0xec200, 0xec210, 0xec254, 0xec260, 0xec278, 0xec284 |
+| \`0x3cd5cc\` | SkillControlIndicator | 0xef2a0, 0xef2b0, 0x118c6c, 0x118c70, 0x11c0a0, 0x11c0b0, 0x11c0d8, 0x11c0e8, 0x11c104, 0x11c114 |
+| \`0x3cd5e2\` | GetUseSkillDirection | 0xef2a4, 0xef2b4 |
 | \`0x3cf1c6\` | N AIM | not found |
-| \`0x3cf24f\` | aimSkills | not found |
-| \`0x3cf259\` | Skill 1 | not found |
-| \`0x3cf261\` | Skill 2 | not found |
-| \`0x3cf269\` | Skill 3 | not found |
-| \`0x3cf271\` | KC Aim | not found |
-| \`0x3cf278\` | ##DistanceAim | not found |
-| \`0x3cf375\` | autoHeroes | not found |
-| \`0x3cf406\` | Aim C1  | not found |
-| \`0x3cf548\` | FlorentinoTarget | not found |
-| \`0x3cf722\` | BijanTargetPicker | not found |
-| \`0x3cf734\` | BijanTarget | not found |
-| \`0x3cf9b6\` | Prefab_Hero/ | not found |
-| \`0x5270d6\` | CSkillButtonManager | not found |
-| \`0x5270f6\` | Native aim callback unavailable; Auto skills remain independent | not found |
-| \`0x527212\` | m_currentSkillSlotType | not found |
-| \`0x527236\` | <m_skillButtonManager>k__BackingField | not found |
-| \`0x52725c\` | SkillControl | not found |
-| \`0x527269\` | SkillSlotArray | not found |
-| \`0x527278\` | skillIndicator | not found |
-| \`0x527287\` | skillSlot | not found |
-| \`0x527291\` | useSkillDirection | not found |
-| \`0x5272a3\` | isSkillCursorInCancelArea | not found |
-| \`0x527307\` | get_bVisible | not found |
-| \`0x5273e4\` | CanRequestSkill | not found |
-| \`0x5273f4\` | ReadyUseSkillSlot | not found |
-| \`0x527406\` | RequestUseSkillSlot | not found |
-| \`0x527527\` | LSkillComponent | not found |
-| \`0x527544\` | LHeroWrapper | not found |
-| \`0x527708\` | input_or_target_changed | not found |
-| \`0x52779e\` | target_unavailable | not found |
-| \`0x527b53\` | manual_target | not found |
-| \`0x527b8b\` | no_reachable_target | not found |
-| \`0x527b9f\` | keep_target | not found |
-| \`0x527bab\` | commit_target | not found |
-| \`0x527bcb\` | finish_close_target | not found |
-| \`0x527c15\` | replace_missing_target | not found |
-| \`0x527c2c\` | no_visible_target | not found |
-| \`0x527c3e\` | commit_current_target | not found |
-| \`0x527c77\` | 521_florentino/skill/a4 | not found |
-| \`0x527c8f\` | 521_florentino/skill/a4.xml | not found |
-| \`0x527cab\` | 521_florentino/skill/ | not found |
-| \`0x527ceb\` | BulletSkill | not found |
-| \`0x527d6b\` | SkillButton | not found |
-| \`0x527eda\` | target_or_owner_changed | not found |
-| \`0x527ef2\` | c1_cooldown_confirmed | not found |
-| \`0x5283f4\` | <m_hostCtrlHero>k__BackingField | not found |
-| \`0x528439\` | AsHero | not found |
-| \`0x5284a7\` | GetEquipActiveSkillCD | not found |
-| \`0x528500\` | SendPlayerChoseEquipSkillCommand | not found |
-| \`0x52854a\` | CHeroInfo | not found |
-| \`0x528554\` | GetHeroName | not found |
-| \`0x52856a\` | _formSkillBtnScript | not found |
-| \`0x5285c8\` | _skillInfoData | not found |
-| \`0x5285ea\` | SkillStateData | not found |
-| \`0x5285f9\` | curSkillCD | not found |
-| \`0x528604\` | curSkillId | not found |
-| \`0x52860f\` | skillLevel | not found |
-| \`0x528709\` | m_bulletSkill | not found |
-| \`0x528717\` | BaseSkill | not found |
-| \`0x52879d\` | ForceDisableSkill | not found |
-| \`0x528902\` | GetSkillAttackRange | not found |
-| \`0x528916\` | GetSkillAttackGuideRange | not found |
-| \`0x52892f\` | SkillButtonUp | not found |
-| \`0x52893d\` | CancelUseSkillSlot | not found |
-| \`0x528968\` | SkillButtonDown | not found |
-| \`0x528984\` | GetUseSkillTargetDefaultAttackMode | not found |
-| \`0x5289a7\` | GetUseSkillTargetLockAttackMode | not found |
-| \`0x5289c7\` | GetUseSkillPosition | not found |
-| \`0x5289db\` | HeroRuntime | not found |
-| \`0x528d5e\` | ##BijanTargetHud | not found |
-| \`0x79ecfb\` | HeroSettings | not found |
-| \`0x79ed08\` | HeroOptions | not found |
+| \`0x3cf24f\` | aimSkills | 0x1064b0, 0x1064b4 |
+| \`0x3cf259\` | Skill 1 | 0x1064c8, 0x1064d0 |
+| \`0x3cf261\` | Skill 2 | 0x1064e0, 0x1064e8 |
+| \`0x3cf269\` | Skill 3 | 0x1064f4, 0x1064fc |
+| \`0x3cf271\` | KC Aim | 0x106568, 0x10656c |
+| \`0x3cf278\` | ##DistanceAim | 0x106594, 0x1065a4 |
+| \`0x3cf375\` | autoHeroes | 0x10d10c, 0x10d110 |
+| \`0x3cf406\` | Aim C1  | 0x10d1c4, 0x10d1cc |
+| \`0x3cf548\` | FlorentinoTarget | 0x10d2c8, 0x10d2cc |
+| \`0x3cf722\` | BijanTargetPicker | 0x10d414, 0x10d418, 0x10d424, 0x10d428 |
+| \`0x3cf734\` | BijanTarget | 0x10d43c, 0x10d440 |
+| \`0x3cf9b6\` | Prefab_Hero/ | 0xe20b4, 0xe20b8, 0xe20d0, 0xe20e0 |
+| \`0x5270d6\` | CSkillButtonManager | 0x1180dc, 0x1180e0, 0x1181a8, 0x1181ac, 0x11bc3c, 0x11bc4c, 0x11bc78, 0x11bc88, 0x11bca4, 0x11bcb4 |
+| \`0x5270f6\` | Native aim callback unavailable; Auto skills remain independent | 0x11b684, 0x11b68c |
+| \`0x527212\` | m_currentSkillSlotType | 0x11bd0c, 0x11bd1c, 0x11bd48, 0x11bd58, 0x11bfd8, 0x11bfe8, 0x11c010, 0x11c020 |
+| \`0x527236\` | <m_skillButtonManager>k__BackingField | 0x11be40, 0x11be50, 0x11be78, 0x11be88 |
+| \`0x52725c\` | SkillControl | 0x11bea4, 0x11beb4, 0x11bee0, 0x11bef0, 0x11cbfc, 0x11cc0c, 0x11cc38, 0x11cc48 |
+| \`0x527269\` | SkillSlotArray | 0x11bf0c, 0x11bf1c, 0x11bf44, 0x11bf54 |
+| \`0x527278\` | skillIndicator | 0x11c03c, 0x11c04c, 0x11c078, 0x11c088 |
+| \`0x527287\` | skillSlot | 0x11c0a4, 0x11c0b4, 0x11c0dc, 0x11c0ec |
+| \`0x527291\` | useSkillDirection | 0x11c108, 0x11c118, 0x11c144, 0x11c154 |
+| \`0x5272a3\` | isSkillCursorInCancelArea | 0x11c170, 0x11c180, 0x11c1a8, 0x11c1b8 |
+| \`0x527307\` | get_bVisible | 0x11c3d8, 0x11c3e8, 0x11c410, 0x11c420 |
+| \`0x5273e4\` | CanRequestSkill | 0x11c880, 0x11c890, 0x11c8b8, 0x11c8c8 |
+| \`0x5273f4\` | ReadyUseSkillSlot | 0x11c8e8, 0x11c8f8, 0x11c924, 0x11c934 |
+| \`0x527406\` | RequestUseSkillSlot | 0x11c954, 0x11c964, 0x11c9a0, 0x11c9b0 |
+| \`0x527527\` | LSkillComponent | 0x118dec, 0x118df0, 0x11bf08, 0x11bf18, 0x11bf40, 0x11bf50, 0x11cd28, 0x11cd3c, 0x11cd64, 0x11cd74 |
+| \`0x527544\` | LHeroWrapper | 0x11cc60, 0x11cc70, 0x11cc98, 0x11cca8, 0x12aa50, 0x12aa54 |
+| \`0x527708\` | input_or_target_changed | 0x120768, 0x12077c, 0x12dff8, 0x12dffc, 0x12f8a8, 0x12f8b0 |
+| \`0x52779e\` | target_unavailable | 0x130f38, 0x130f44 |
+| \`0x527b53\` | manual_target | 0x138b94, 0x138b98 |
+| \`0x527b8b\` | no_reachable_target | 0x138f1c, 0x138f24 |
+| \`0x527b9f\` | keep_target | 0x138f00, 0x138f04, 0x139864, 0x139868 |
+| \`0x527bab\` | commit_target | 0x138f84, 0x138f88 |
+| \`0x527bcb\` | finish_close_target | 0x1391bc, 0x1391c0, 0x139870, 0x139874 |
+| \`0x527c15\` | replace_missing_target | 0x139888, 0x13988c |
+| \`0x527c2c\` | no_visible_target | 0x1398b0, 0x1398b4 |
+| \`0x527c3e\` | commit_current_target | 0x1398ec, 0x1398f0 |
+| \`0x527c77\` | 521_florentino/skill/a4 | 0x13e010, 0x13e014 |
+| \`0x527c8f\` | 521_florentino/skill/a4.xml | 0x13e12c, 0x13e130 |
+| \`0x527cab\` | 521_florentino/skill/ | 0x13e5d8, 0x13e5dc |
+| \`0x527ceb\` | BulletSkill | 0x11dbc4, 0x11dbd4, 0x11dc00, 0x11dc10, 0x133898, 0x13389c |
+| \`0x527d6b\` | SkillButton | 0x11d390, 0x11d3a0, 0x11d3c8, 0x11d3d8, 0x13a1a8, 0x13a1ac |
+| \`0x527eda\` | target_or_owner_changed | 0x13aff0, 0x13affc |
+| \`0x527ef2\` | c1_cooldown_confirmed | 0x13afbc, 0x13afc4 |
+| \`0x5283f4\` | <m_hostCtrlHero>k__BackingField | 0x11cacc, 0x11cadc, 0x11cb04, 0x11cb14 |
+| \`0x528439\` | AsHero | 0x11ccc8, 0x11ccd8, 0x11ccfc, 0x11cd0c |
+| \`0x5284a7\` | GetEquipActiveSkillCD | 0x11cedc, 0x11cef0, 0x11cf18, 0x11cf28 |
+| \`0x528500\` | SendPlayerChoseEquipSkillCommand | 0x11d09c, 0x11d0b0, 0x11d0dc, 0x11d0ec |
+| \`0x52854a\` | CHeroInfo | 0x11d114, 0x11d130, 0x11d160, 0x11d170 |
+| \`0x528554\` | GetHeroName | 0x11d118, 0x11d134, 0x11d164, 0x11d174 |
+| \`0x52856a\` | _formSkillBtnScript | 0x11d1fc, 0x11d20c, 0x11d234, 0x11d244 |
+| \`0x5285c8\` | _skillInfoData | 0x11d3f8, 0x11d408, 0x11d434, 0x11d444 |
+| \`0x5285ea\` | SkillStateData | 0x11d45c, 0x11d468 |
+| \`0x5285f9\` | curSkillCD | 0x11d46c, 0x11d470 |
+| \`0x528604\` | curSkillId | 0x11d490, 0x11d498 |
+| \`0x52860f\` | skillLevel | 0x11d4b0, 0x11d4b8 |
+| \`0x528709\` | m_bulletSkill | 0x11dafc, 0x11db0c, 0x11db38, 0x11db48 |
+| \`0x528717\` | BaseSkill | 0x11db60, 0x11db70, 0x11db98, 0x11dba8 |
+| \`0x52879d\` | ForceDisableSkill | 0x11dfd0, 0x11dfe0, 0x11e008, 0x11e018, 0x11e034, 0x11e044, 0x11e070, 0x11e080 |
+| \`0x528902\` | GetSkillAttackRange | 0x11e9ac, 0x11e9c0, 0x11e9e8, 0x11e9f8 |
+| \`0x528916\` | GetSkillAttackGuideRange | 0x11ea18, 0x11ea2c, 0x11ea54, 0x11ea64 |
+| \`0x52892f\` | SkillButtonUp | 0x11ea84, 0x11ea98, 0x11eac0, 0x11ead0 |
+| \`0x52893d\` | CancelUseSkillSlot | 0x118cb4, 0x118cb8, 0x11bf6c, 0x11bf7c, 0x11bfa8, 0x11bfb8, 0x11bfd4, 0x11bfe4, 0x11c00c, 0x11c01c |
+| \`0x528968\` | SkillButtonDown | 0x11ec2c, 0x11ec3c |
+| \`0x528984\` | GetUseSkillTargetDefaultAttackMode | 0x11ec84, 0x11ec8c |
+| \`0x5289a7\` | GetUseSkillTargetLockAttackMode | 0x11eca4, 0x11ecac |
+| \`0x5289c7\` | GetUseSkillPosition | 0x11ecc4, 0x11eccc |
+| \`0x5289db\` | HeroRuntime | 0x11d1bc, 0x11d1cc, 0x11d228, 0x11d238, 0x11d290, 0x11d2a0, 0x11d2f4, 0x11d304, 0x11d35c, 0x11d36c |
+| \`0x528d5e\` | ##BijanTargetHud | 0x1562f8, 0x156300 |
+| \`0x79ecfb\` | HeroSettings | 0x189eb0, 0x189eb4, 0x189ec0, 0x189ec4, 0x189ee0, 0x189ee4, 0x19a8e4, 0x19a8e8 |
+| \`0x79ed08\` | HeroOptions | 0x189f14, 0x189f18, 0x189f24, 0x189f28, 0x189f40, 0x189f44, 0x19a93c, 0x19a940 |
 | \`0x7a00f5\` | DragDropTarget | not found |
 | \`0x7a0104\` | DragDropTargetBg | not found |
-| \`0x7a0312\` | [io] Calling Platform_SetImeDataFn(): WantVisible: %d, InputPos (%.2f,%. | not found |
-| \`0x7a0911\` | Programmer error: %d visible items with conflicting ID! | not found |
+| \`0x7a0312\` | [io] Calling Platform_SetImeDataFn(): WantVisible: %d, InputPos (%.2f,%. | 0x1f91c4, 0x1f91d0 |
+| \`0x7a0911\` | Programmer error: %d visible items with conflicting ID! | 0x1f9cb8, 0x1f9cbc |
 | \`0x7a1493\` | %d visible windows, %d current allocations | not found |
 | \`0x7a1ae1\` | Windows Minimap | not found |
 | \`0x7a22da\` | NavActive: %d, NavVisible: %d | not found |
 | \`0x7a233e\` | NavCursorVisible: %d, NavHighlightItemUnderNav: %d | not found |
 | \`0x7a23b4\` | NavWindowingTarget: '%s' | not found |
 | \`0x7a4711\` | Enabled: %d, VisibleX/Y: %d/%d, RequestOutput: %d, SkipItems: %d, DrawCh | not found |
-| \`0x7a4984\` | Visible=%d%n | not found |
-| \`0x7a49f6\` |  Visible=%d | not found |
+| \`0x7a4984\` | Visible=%d%n | 0x20d11c, 0x20d120 |
+| \`0x7a49f6\` |  Visible=%d | 0x20d304, 0x20d320 |
 | \`0x7ade96\` | ac-targeting | not found |
 | \`0x7ae745\` | targetInformation | not found |
 | \`0x7ae757\` | X509v3 AC Targeting | not found |
 | \`0x7b9df1\` | ASN1_VISIBLESTRING | not found |
-| \`0x7be7f7\` | SSL: no alternative certificate subject name matches target host name '% | not found |
-| \`0x7be8b9\` | SSL: certificate subject name '%s' does not match target host name '%s' | not found |
+| \`0x7be7f7\` | SSL: no alternative certificate subject name matches target host name '% | 0x2b2d70, 0x2b2d74 |
+| \`0x7be8b9\` | SSL: certificate subject name '%s' does not match target host name '%s' | 0x2b3550, 0x2b3554 |
 | \`0x7d3252\` | VISIBLE | not found |
 | \`0x7db8be\` | encipherOnly | not found |
 | \`0x7db8d9\` | decipherOnly | not found |

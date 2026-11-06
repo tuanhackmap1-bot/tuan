@@ -6,7 +6,7 @@
   "analysis_kind": "static string + ARM64 ADR/ADRP-ADD cross-references",
   "addresses_are": "RVA relative to libysmteam.so, NOT IL2CPP/game offsets",
   "not_verified": "Which code refs implement ESP/AIM/hack map, game-version compatibility, in-game behavior",
-  "decoded_arm64_instructions": 0,
+  "decoded_arm64_instructions": 785928,
   "exported_native_functions": [
     {
       "name": "SSL_set_connect_state",
@@ -22036,7 +22036,12 @@
       "rva": 3986190,
       "file_offset": 3986190,
       "bytes_len": 8,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        3918804,
+        3918812,
+        3928840,
+        3928848
+      ]
     },
     {
       "text": "ng Aim",
@@ -22052,7 +22057,14 @@
       "rva": 3986383,
       "file_offset": 3986383,
       "bytes_len": 45,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        946864,
+        946872,
+        2662072,
+        2662080,
+        3923272,
+        3923276
+      ]
     },
     {
       "text": "ResHeroSkin",
@@ -22060,7 +22072,10 @@
       "rva": 3986525,
       "file_offset": 3986525,
       "bytes_len": 11,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        966276,
+        966292
+      ]
     },
     {
       "text": "HeroSelectNormalWindow",
@@ -22068,7 +22083,12 @@
       "rva": 3986568,
       "file_offset": 3986568,
       "bytes_len": 22,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        966324,
+        966340,
+        966372,
+        966388
+      ]
     },
     {
       "text": "RefreshHeroPanel",
@@ -22076,7 +22096,10 @@
       "rva": 3986591,
       "file_offset": 3986591,
       "bytes_len": 16,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        966328,
+        966344
+      ]
     },
     {
       "text": "OnClickSelectHeroSkin",
@@ -22084,7 +22107,14 @@
       "rva": 3986608,
       "file_offset": 3986608,
       "bytes_len": 21,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        966376,
+        966392,
+        966460,
+        966472,
+        966496,
+        966508
+      ]
     },
     {
       "text": "IsHaveHeroSkin",
@@ -22092,7 +22122,10 @@
       "rva": 3986640,
       "file_offset": 3986640,
       "bytes_len": 14,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        966532,
+        966552
+      ]
     },
     {
       "text": "IsHaveHeroSkin(bool)",
@@ -22100,7 +22133,12 @@
       "rva": 3986676,
       "file_offset": 3986676,
       "bytes_len": 20,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        966628,
+        966640,
+        966664,
+        966676
+      ]
     },
     {
       "text": "GetHeroSkin",
@@ -22108,7 +22146,14 @@
       "rva": 3986728,
       "file_offset": 3986728,
       "bytes_len": 11,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        967012,
+        967028,
+        967096,
+        967108,
+        967132,
+        967144
+      ]
     },
     {
       "text": "ConvertServerHeroInfo",
@@ -22116,7 +22161,14 @@
       "rva": 3986800,
       "file_offset": 3986800,
       "bytes_len": 21,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        967168,
+        967184,
+        967252,
+        967264,
+        967288,
+        967300
+      ]
     },
     {
       "text": "SkillControlIndicator",
@@ -22124,7 +22176,34 @@
       "rva": 3986892,
       "file_offset": 3986892,
       "bytes_len": 21,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        979616,
+        979632,
+        1150060,
+        1150064,
+        1163424,
+        1163440,
+        1163480,
+        1163496,
+        1163524,
+        1163540,
+        1163584,
+        1163600,
+        1163628,
+        1163644,
+        1163684,
+        1163700,
+        1174652,
+        1174656,
+        1179820,
+        1179824,
+        1187092,
+        1187096,
+        1189524,
+        1189528,
+        1395020,
+        1395024
+      ]
     },
     {
       "text": "GetUseSkillDirection",
@@ -22132,7 +22211,10 @@
       "rva": 3986914,
       "file_offset": 3986914,
       "bytes_len": 20,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        979620,
+        979636
+      ]
     },
     {
       "text": "N AIM",
@@ -22148,7 +22230,10 @@
       "rva": 3994191,
       "file_offset": 3994191,
       "bytes_len": 9,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1074352,
+        1074356
+      ]
     },
     {
       "text": "Skill 1",
@@ -22156,7 +22241,10 @@
       "rva": 3994201,
       "file_offset": 3994201,
       "bytes_len": 7,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1074376,
+        1074384
+      ]
     },
     {
       "text": "Skill 2",
@@ -22164,7 +22252,10 @@
       "rva": 3994209,
       "file_offset": 3994209,
       "bytes_len": 7,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1074400,
+        1074408
+      ]
     },
     {
       "text": "Skill 3",
@@ -22172,7 +22263,10 @@
       "rva": 3994217,
       "file_offset": 3994217,
       "bytes_len": 7,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1074420,
+        1074428
+      ]
     },
     {
       "text": "KC Aim",
@@ -22180,7 +22274,10 @@
       "rva": 3994225,
       "file_offset": 3994225,
       "bytes_len": 6,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1074536,
+        1074540
+      ]
     },
     {
       "text": "##DistanceAim",
@@ -22188,7 +22285,10 @@
       "rva": 3994232,
       "file_offset": 3994232,
       "bytes_len": 13,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1074580,
+        1074596
+      ]
     },
     {
       "text": "autoHeroes",
@@ -22196,7 +22296,10 @@
       "rva": 3994485,
       "file_offset": 3994485,
       "bytes_len": 10,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1102092,
+        1102096
+      ]
     },
     {
       "text": "Aim C1 ",
@@ -22204,7 +22307,10 @@
       "rva": 3994630,
       "file_offset": 3994630,
       "bytes_len": 7,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1102276,
+        1102284
+      ]
     },
     {
       "text": "FlorentinoTarget",
@@ -22212,7 +22318,10 @@
       "rva": 3994952,
       "file_offset": 3994952,
       "bytes_len": 16,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1102536,
+        1102540
+      ]
     },
     {
       "text": "BijanTargetPicker",
@@ -22220,7 +22329,12 @@
       "rva": 3995426,
       "file_offset": 3995426,
       "bytes_len": 17,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1102868,
+        1102872,
+        1102884,
+        1102888
+      ]
     },
     {
       "text": "BijanTarget",
@@ -22228,7 +22342,10 @@
       "rva": 3995444,
       "file_offset": 3995444,
       "bytes_len": 11,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1102908,
+        1102912
+      ]
     },
     {
       "text": "Prefab_Hero/",
@@ -22236,7 +22353,12 @@
       "rva": 3996086,
       "file_offset": 3996086,
       "bytes_len": 24,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        925876,
+        925880,
+        925904,
+        925920
+      ]
     },
     {
       "text": "CSkillButtonManager",
@@ -22244,7 +22366,54 @@
       "rva": 5402838,
       "file_offset": 5402838,
       "bytes_len": 19,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1147100,
+        1147104,
+        1147304,
+        1147308,
+        1162300,
+        1162316,
+        1162360,
+        1162376,
+        1162404,
+        1162420,
+        1162460,
+        1162476,
+        1162504,
+        1162520,
+        1162564,
+        1162580,
+        1162608,
+        1162624,
+        1162664,
+        1162680,
+        1165436,
+        1165452,
+        1165492,
+        1165508,
+        1165540,
+        1165556,
+        1165600,
+        1165616,
+        1165648,
+        1165664,
+        1165724,
+        1165740,
+        1173064,
+        1173084,
+        1173124,
+        1173140,
+        1174144,
+        1174164,
+        1174204,
+        1174220,
+        1174252,
+        1174272,
+        1174312,
+        1174328,
+        1174568,
+        1174584
+      ]
     },
     {
       "text": "Native aim callback unavailable; Auto skills remain independent",
@@ -22252,7 +22421,10 @@
       "rva": 5402870,
       "file_offset": 5402870,
       "bytes_len": 63,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1160836,
+        1160844
+      ]
     },
     {
       "text": "m_currentSkillSlotType",
@@ -22260,7 +22432,16 @@
       "rva": 5403154,
       "file_offset": 5403154,
       "bytes_len": 22,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1162508,
+        1162524,
+        1162568,
+        1162584,
+        1163224,
+        1163240,
+        1163280,
+        1163296
+      ]
     },
     {
       "text": "<m_skillButtonManager>k__BackingField",
@@ -22268,7 +22449,12 @@
       "rva": 5403190,
       "file_offset": 5403190,
       "bytes_len": 37,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1162816,
+        1162832,
+        1162872,
+        1162888
+      ]
     },
     {
       "text": "SkillControl",
@@ -22276,7 +22462,16 @@
       "rva": 5403228,
       "file_offset": 5403228,
       "bytes_len": 12,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1162916,
+        1162932,
+        1162976,
+        1162992,
+        1166332,
+        1166348,
+        1166392,
+        1166408
+      ]
     },
     {
       "text": "SkillSlotArray",
@@ -22284,7 +22479,12 @@
       "rva": 5403241,
       "file_offset": 5403241,
       "bytes_len": 14,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1163020,
+        1163036,
+        1163076,
+        1163092
+      ]
     },
     {
       "text": "skillIndicator",
@@ -22292,7 +22492,12 @@
       "rva": 5403256,
       "file_offset": 5403256,
       "bytes_len": 14,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1163324,
+        1163340,
+        1163384,
+        1163400
+      ]
     },
     {
       "text": "skillSlot",
@@ -22300,7 +22505,12 @@
       "rva": 5403271,
       "file_offset": 5403271,
       "bytes_len": 9,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1163428,
+        1163444,
+        1163484,
+        1163500
+      ]
     },
     {
       "text": "useSkillDirection",
@@ -22308,7 +22518,12 @@
       "rva": 5403281,
       "file_offset": 5403281,
       "bytes_len": 17,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1163528,
+        1163544,
+        1163588,
+        1163604
+      ]
     },
     {
       "text": "isSkillCursorInCancelArea",
@@ -22316,7 +22531,12 @@
       "rva": 5403299,
       "file_offset": 5403299,
       "bytes_len": 25,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1163632,
+        1163648,
+        1163688,
+        1163704
+      ]
     },
     {
       "text": "get_bVisible",
@@ -22324,7 +22544,12 @@
       "rva": 5403399,
       "file_offset": 5403399,
       "bytes_len": 12,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1164248,
+        1164264,
+        1164304,
+        1164320
+      ]
     },
     {
       "text": "CanRequestSkill",
@@ -22332,7 +22557,12 @@
       "rva": 5403620,
       "file_offset": 5403620,
       "bytes_len": 15,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1165440,
+        1165456,
+        1165496,
+        1165512
+      ]
     },
     {
       "text": "ReadyUseSkillSlot",
@@ -22340,7 +22570,12 @@
       "rva": 5403636,
       "file_offset": 5403636,
       "bytes_len": 17,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1165544,
+        1165560,
+        1165604,
+        1165620
+      ]
     },
     {
       "text": "RequestUseSkillSlot",
@@ -22348,7 +22583,12 @@
       "rva": 5403654,
       "file_offset": 5403654,
       "bytes_len": 19,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1165652,
+        1165668,
+        1165728,
+        1165744
+      ]
     },
     {
       "text": "LSkillComponent",
@@ -22356,7 +22596,40 @@
       "rva": 5403943,
       "file_offset": 5403943,
       "bytes_len": 15,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1150444,
+        1150448,
+        1163016,
+        1163032,
+        1163072,
+        1163088,
+        1166632,
+        1166652,
+        1166692,
+        1166708,
+        1171404,
+        1171420,
+        1171460,
+        1171476,
+        1171504,
+        1171520,
+        1171564,
+        1171580,
+        1173928,
+        1173948,
+        1173988,
+        1174004,
+        1174036,
+        1174056,
+        1174096,
+        1174112,
+        1210860,
+        1210864,
+        1223092,
+        1223096,
+        1277600,
+        1277604
+      ]
     },
     {
       "text": "LHeroWrapper",
@@ -22364,7 +22637,14 @@
       "rva": 5403972,
       "file_offset": 5403972,
       "bytes_len": 12,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1166432,
+        1166448,
+        1166488,
+        1166504,
+        1223248,
+        1223252
+      ]
     },
     {
       "text": "input_or_target_changed",
@@ -22372,7 +22652,14 @@
       "rva": 5404424,
       "file_offset": 5404424,
       "bytes_len": 23,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1181544,
+        1181564,
+        1236984,
+        1236988,
+        1243304,
+        1243312
+      ]
     },
     {
       "text": "target_unavailable",
@@ -22380,7 +22667,10 @@
       "rva": 5404574,
       "file_offset": 5404574,
       "bytes_len": 18,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1249080,
+        1249092
+      ]
     },
     {
       "text": "manual_target",
@@ -22388,7 +22678,10 @@
       "rva": 5405523,
       "file_offset": 5405523,
       "bytes_len": 13,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1280916,
+        1280920
+      ]
     },
     {
       "text": "no_reachable_target",
@@ -22396,7 +22689,10 @@
       "rva": 5405579,
       "file_offset": 5405579,
       "bytes_len": 19,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1281820,
+        1281828
+      ]
     },
     {
       "text": "keep_target",
@@ -22404,7 +22700,12 @@
       "rva": 5405599,
       "file_offset": 5405599,
       "bytes_len": 11,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1281792,
+        1281796,
+        1284196,
+        1284200
+      ]
     },
     {
       "text": "commit_target",
@@ -22412,7 +22713,10 @@
       "rva": 5405611,
       "file_offset": 5405611,
       "bytes_len": 13,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1281924,
+        1281928
+      ]
     },
     {
       "text": "finish_close_target",
@@ -22420,7 +22724,12 @@
       "rva": 5405643,
       "file_offset": 5405643,
       "bytes_len": 19,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1282492,
+        1282496,
+        1284208,
+        1284212
+      ]
     },
     {
       "text": "replace_missing_target",
@@ -22428,7 +22737,10 @@
       "rva": 5405717,
       "file_offset": 5405717,
       "bytes_len": 22,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1284232,
+        1284236
+      ]
     },
     {
       "text": "no_visible_target",
@@ -22436,7 +22748,10 @@
       "rva": 5405740,
       "file_offset": 5405740,
       "bytes_len": 17,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1284272,
+        1284276
+      ]
     },
     {
       "text": "commit_current_target",
@@ -22444,7 +22759,10 @@
       "rva": 5405758,
       "file_offset": 5405758,
       "bytes_len": 21,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1284332,
+        1284336
+      ]
     },
     {
       "text": "521_florentino/skill/a4",
@@ -22452,7 +22770,10 @@
       "rva": 5405815,
       "file_offset": 5405815,
       "bytes_len": 23,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1302544,
+        1302548
+      ]
     },
     {
       "text": "521_florentino/skill/a4.xml",
@@ -22460,7 +22781,10 @@
       "rva": 5405839,
       "file_offset": 5405839,
       "bytes_len": 27,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1302828,
+        1302832
+      ]
     },
     {
       "text": "521_florentino/skill/",
@@ -22468,7 +22792,10 @@
       "rva": 5405867,
       "file_offset": 5405867,
       "bytes_len": 21,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1304024,
+        1304028
+      ]
     },
     {
       "text": "BulletSkill",
@@ -22476,7 +22803,14 @@
       "rva": 5405931,
       "file_offset": 5405931,
       "bytes_len": 11,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1170372,
+        1170388,
+        1170432,
+        1170448,
+        1259672,
+        1259676
+      ]
     },
     {
       "text": "SkillButton",
@@ -22484,7 +22818,14 @@
       "rva": 5406059,
       "file_offset": 5406059,
       "bytes_len": 11,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1168272,
+        1168288,
+        1168328,
+        1168344,
+        1286568,
+        1286572
+      ]
     },
     {
       "text": "target_or_owner_changed",
@@ -22492,7 +22833,10 @@
       "rva": 5406426,
       "file_offset": 5406426,
       "bytes_len": 23,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1290224,
+        1290236
+      ]
     },
     {
       "text": "c1_cooldown_confirmed",
@@ -22500,7 +22844,10 @@
       "rva": 5406450,
       "file_offset": 5406450,
       "bytes_len": 21,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1290172,
+        1290180
+      ]
     },
     {
       "text": "<m_hostCtrlHero>k__BackingField",
@@ -22508,7 +22855,12 @@
       "rva": 5407732,
       "file_offset": 5407732,
       "bytes_len": 31,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1166028,
+        1166044,
+        1166084,
+        1166100
+      ]
     },
     {
       "text": "AsHero",
@@ -22516,7 +22868,12 @@
       "rva": 5407801,
       "file_offset": 5407801,
       "bytes_len": 6,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1166536,
+        1166552,
+        1166588,
+        1166604
+      ]
     },
     {
       "text": "GetEquipActiveSkillCD",
@@ -22524,7 +22881,12 @@
       "rva": 5407911,
       "file_offset": 5407911,
       "bytes_len": 21,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1167068,
+        1167088,
+        1167128,
+        1167144
+      ]
     },
     {
       "text": "SendPlayerChoseEquipSkillCommand",
@@ -22532,7 +22894,12 @@
       "rva": 5408000,
       "file_offset": 5408000,
       "bytes_len": 32,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1167516,
+        1167536,
+        1167580,
+        1167596
+      ]
     },
     {
       "text": "CHeroInfo",
@@ -22540,7 +22907,12 @@
       "rva": 5408074,
       "file_offset": 5408074,
       "bytes_len": 9,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1167636,
+        1167664,
+        1167712,
+        1167728
+      ]
     },
     {
       "text": "GetHeroName",
@@ -22548,7 +22920,12 @@
       "rva": 5408084,
       "file_offset": 5408084,
       "bytes_len": 11,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1167640,
+        1167668,
+        1167716,
+        1167732
+      ]
     },
     {
       "text": "_formSkillBtnScript",
@@ -22556,7 +22933,12 @@
       "rva": 5408106,
       "file_offset": 5408106,
       "bytes_len": 19,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1167868,
+        1167884,
+        1167924,
+        1167940
+      ]
     },
     {
       "text": "_skillInfoData",
@@ -22564,7 +22946,12 @@
       "rva": 5408200,
       "file_offset": 5408200,
       "bytes_len": 14,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1168376,
+        1168392,
+        1168436,
+        1168452
+      ]
     },
     {
       "text": "SkillStateData",
@@ -22572,7 +22959,10 @@
       "rva": 5408234,
       "file_offset": 5408234,
       "bytes_len": 14,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1168476,
+        1168488
+      ]
     },
     {
       "text": "curSkillCD",
@@ -22580,7 +22970,10 @@
       "rva": 5408249,
       "file_offset": 5408249,
       "bytes_len": 10,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1168492,
+        1168496
+      ]
     },
     {
       "text": "curSkillId",
@@ -22588,7 +22981,10 @@
       "rva": 5408260,
       "file_offset": 5408260,
       "bytes_len": 10,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1168528,
+        1168536
+      ]
     },
     {
       "text": "skillLevel",
@@ -22596,7 +22992,10 @@
       "rva": 5408271,
       "file_offset": 5408271,
       "bytes_len": 10,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1168560,
+        1168568
+      ]
     },
     {
       "text": "m_bulletSkill",
@@ -22604,7 +23003,12 @@
       "rva": 5408521,
       "file_offset": 5408521,
       "bytes_len": 13,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1170172,
+        1170188,
+        1170232,
+        1170248
+      ]
     },
     {
       "text": "BaseSkill",
@@ -22612,7 +23016,12 @@
       "rva": 5408535,
       "file_offset": 5408535,
       "bytes_len": 9,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1170272,
+        1170288,
+        1170328,
+        1170344
+      ]
     },
     {
       "text": "ForceDisableSkill",
@@ -22620,7 +23029,16 @@
       "rva": 5408669,
       "file_offset": 5408669,
       "bytes_len": 17,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1171408,
+        1171424,
+        1171464,
+        1171480,
+        1171508,
+        1171524,
+        1171568,
+        1171584
+      ]
     },
     {
       "text": "GetSkillAttackRange",
@@ -22628,7 +23046,12 @@
       "rva": 5409026,
       "file_offset": 5409026,
       "bytes_len": 19,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1173932,
+        1173952,
+        1173992,
+        1174008
+      ]
     },
     {
       "text": "GetSkillAttackGuideRange",
@@ -22636,7 +23059,12 @@
       "rva": 5409046,
       "file_offset": 5409046,
       "bytes_len": 24,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1174040,
+        1174060,
+        1174100,
+        1174116
+      ]
     },
     {
       "text": "SkillButtonUp",
@@ -22644,7 +23072,12 @@
       "rva": 5409071,
       "file_offset": 5409071,
       "bytes_len": 13,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1174148,
+        1174168,
+        1174208,
+        1174224
+      ]
     },
     {
       "text": "CancelUseSkillSlot",
@@ -22652,7 +23085,38 @@
       "rva": 5409085,
       "file_offset": 5409085,
       "bytes_len": 18,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1150132,
+        1150136,
+        1163116,
+        1163132,
+        1163176,
+        1163192,
+        1163220,
+        1163236,
+        1163276,
+        1163292,
+        1163320,
+        1163336,
+        1163380,
+        1163396,
+        1168372,
+        1168388,
+        1168432,
+        1168448,
+        1174256,
+        1174276,
+        1174316,
+        1174332,
+        1174360,
+        1174376,
+        1174416,
+        1174432,
+        1211040,
+        1211044,
+        1395092,
+        1395096
+      ]
     },
     {
       "text": "SkillButtonDown",
@@ -22660,7 +23124,10 @@
       "rva": 5409128,
       "file_offset": 5409128,
       "bytes_len": 15,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1174572,
+        1174588
+      ]
     },
     {
       "text": "GetUseSkillTargetDefaultAttackMode",
@@ -22668,7 +23135,10 @@
       "rva": 5409156,
       "file_offset": 5409156,
       "bytes_len": 34,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1174660,
+        1174668
+      ]
     },
     {
       "text": "GetUseSkillTargetLockAttackMode",
@@ -22676,7 +23146,10 @@
       "rva": 5409191,
       "file_offset": 5409191,
       "bytes_len": 31,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1174692,
+        1174700
+      ]
     },
     {
       "text": "GetUseSkillPosition",
@@ -22684,7 +23157,10 @@
       "rva": 5409223,
       "file_offset": 5409223,
       "bytes_len": 19,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1174724,
+        1174732
+      ]
     },
     {
       "text": "HeroRuntime",
@@ -22692,7 +23168,68 @@
       "rva": 5409243,
       "file_offset": 5409243,
       "bytes_len": 11,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1167804,
+        1167820,
+        1167912,
+        1167928,
+        1168016,
+        1168032,
+        1168116,
+        1168132,
+        1168220,
+        1168236,
+        1168320,
+        1168336,
+        1168424,
+        1168440,
+        1168672,
+        1168688,
+        1168792,
+        1168808,
+        1168892,
+        1168908,
+        1168996,
+        1169012,
+        1169096,
+        1169112,
+        1169200,
+        1169216,
+        1169300,
+        1169316,
+        1169404,
+        1169420,
+        1169504,
+        1169520,
+        1169608,
+        1169624,
+        1169708,
+        1169724,
+        1169812,
+        1169828,
+        1169912,
+        1169928,
+        1170016,
+        1170032,
+        1170116,
+        1170132,
+        1170220,
+        1170236,
+        1170320,
+        1170336,
+        1170424,
+        1170440,
+        1170568,
+        1170584,
+        1170676,
+        1170692,
+        1170832,
+        1170848,
+        1170944,
+        1170960,
+        1171044,
+        1171060
+      ]
     },
     {
       "text": "##BijanTargetHud",
@@ -22700,7 +23237,10 @@
       "rva": 5410142,
       "file_offset": 5410142,
       "bytes_len": 16,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1401592,
+        1401600
+      ]
     },
     {
       "text": "HeroSettings",
@@ -22708,7 +23248,16 @@
       "rva": 7990523,
       "file_offset": 7990523,
       "bytes_len": 12,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1613488,
+        1613492,
+        1613504,
+        1613508,
+        1613536,
+        1613540,
+        1681636,
+        1681640
+      ]
     },
     {
       "text": "HeroOptions",
@@ -22716,7 +23265,16 @@
       "rva": 7990536,
       "file_offset": 7990536,
       "bytes_len": 11,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        1613588,
+        1613592,
+        1613604,
+        1613608,
+        1613632,
+        1613636,
+        1681724,
+        1681728
+      ]
     },
     {
       "text": "DragDropTarget",
@@ -22740,7 +23298,10 @@
       "rva": 7996178,
       "file_offset": 7996178,
       "bytes_len": 95,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        2068932,
+        2068944
+      ]
     },
     {
       "text": "Programmer error: %d visible items with conflicting ID!",
@@ -22748,7 +23309,10 @@
       "rva": 7997713,
       "file_offset": 7997713,
       "bytes_len": 55,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        2071736,
+        2071740
+      ]
     },
     {
       "text": "%d visible windows, %d current allocations",
@@ -22804,7 +23368,10 @@
       "rva": 8014212,
       "file_offset": 8014212,
       "bytes_len": 12,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        2150684,
+        2150688
+      ]
     },
     {
       "text": " Visible=%d",
@@ -22812,7 +23379,10 @@
       "rva": 8014326,
       "file_offset": 8014326,
       "bytes_len": 11,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        2151172,
+        2151200
+      ]
     },
     {
       "text": "ac-targeting",
@@ -22852,7 +23422,10 @@
       "rva": 8120311,
       "file_offset": 8120311,
       "bytes_len": 74,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        2829680,
+        2829684
+      ]
     },
     {
       "text": "SSL: certificate subject name '%s' does not match target host name '%s'",
@@ -22860,7 +23433,10 @@
       "rva": 8120505,
       "file_offset": 8120505,
       "bytes_len": 71,
-      "code_refs_rva": []
+      "code_refs_rva": [
+        2831696,
+        2831700
+      ]
     },
     {
       "text": "VISIBLE",
