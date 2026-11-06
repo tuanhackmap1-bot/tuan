@@ -2,7 +2,7 @@
 # Usage: powershell -ExecutionPolicy Bypass -File .\VTUAN_Diagnose_Android.ps1
 # Does not install/uninstall packages, clear game data, alter files, or read keys.
 param(
-  [string]$Package = "com.garena.game.kgvn",
+  [string]$Package = "com.garena.game.kgvn1",
   [string]$OutputFile = "VTUAN_DEVICE_NATIVE_REPORT.txt"
 )
 $ErrorActionPreference = 'Stop'
@@ -19,6 +19,7 @@ $stamp = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
 $abi = ((& adb shell getprop ro.product.cpu.abilist) -join '').Trim()
 $androidVersion = ((& adb shell getprop ro.build.version.release) -join '').Trim()
 $paths = @(& adb shell pm path $Package | Where-Object { $_ -match '^package:' })
+$officialPaths = @(& adb shell pm path "com.garena.game.kgvn" | Where-Object { $_ -match '^package:' })
 $dumpsys = @(& adb shell dumpsys package $Package 2>&1)
 $pkgFacts = @($dumpsys | Select-String -Pattern 'versionName=|versionCode=|primaryCpuAbi=|secondaryCpuAbi=|splitNames=|sourceDir=' | Select-Object -First 30 | ForEach-Object { $_.Line.Trim() })
 $crashBuffer = @(& adb logcat -d -b crash -t 1200 2>&1)
@@ -33,6 +34,10 @@ $lines = @(
 )
 if ($paths.Count -eq 0) { $lines += "(Package not found on this device)" }
 else { $lines += $paths }
+$lines += ""
+$lines += "Official Liên Quân package paths (com.garena.game.kgvn):"
+if ($officialPaths.Count -eq 0) { $lines += "(Not installed or not visible)" }
+else { $lines += $officialPaths }
 $lines += ""
 $lines += "Package metadata:"
 if ($pkgFacts.Count -eq 0) { $lines += "(No package metadata found)" }
