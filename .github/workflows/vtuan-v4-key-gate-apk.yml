@@ -26,7 +26,7 @@ jobs:
         run: |
           mkdir -p /tmp/vtuan-key-tests
           javac -encoding UTF-8 -d /tmp/vtuan-key-tests \
-            vtuan_android/gate_v4/KeyExpiry.java \
+            vtuan_android/gate_v4/app/src/main/java/com/vtuan/gate/KeyExpiry.java \
             vtuan_android/gate_v4_tests/KeyExpiryTest.java
           java -cp /tmp/vtuan-key-tests com.vtuan.gate.KeyExpiryTest
       - name: Install Android SDK
