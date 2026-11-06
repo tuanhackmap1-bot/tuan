@@ -29,6 +29,6 @@ public final class V4Session {
 
     public static synchronized boolean isValid(long nowMs){
         return valid && nowMs>=checkedAt &&
-                nowMs<=acceptedUntil && acceptedUntil>checkedAt;
+                nowMs<acceptedUntil && acceptedUntil>checkedAt;
     }
 }
