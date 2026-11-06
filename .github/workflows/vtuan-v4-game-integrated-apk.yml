@@ -37,6 +37,9 @@ jobs:
               assert got=='752bcdc20d88fe535b4de156790e7468bf58c61b21dfd1eba5ee2fbda0facb38',got
           print('PASS original V4 hash, without executing third-party APK')
           PY
+          mkdir -p /tmp/vtuan-result
+          python vtuan_android/v4_game_integration/verify_v4_jni_abi.py \
+            /tmp/original-v4.apk /tmp/vtuan-result/V4_JNI_ABI_VERIFIED.json
       - name: Install required Android platform and build tools
         run: |
           SDKM=$(find "${ANDROID_HOME:-/usr/local/lib/android/sdk}/cmdline-tools" -type f -name sdkmanager | head -1)
@@ -62,6 +65,9 @@ jobs:
             vtuan_android/v4_game_integration/GLES3JNIView.java \
             vtuan_android/gate_v4/app/src/main/java/com/vtuan/gate/KeyApiPath.java \
             vtuan_android/gate_v4/app/src/main/java/com/vtuan/gate/KeyExpiry.java
+          javap -classpath /tmp/gate-classes -s com.ysmteam.imgui.GLES3JNIView > /tmp/vtuan-result/V4_JAVA_JNI_SIGNATURES.txt
+          grep -F 'public static native java.lang.String getWindowRect();' /tmp/vtuan-result/V4_JAVA_JNI_SIGNATURES.txt
+          grep -F 'descriptor: ()Ljava/lang/String;' /tmp/vtuan-result/V4_JAVA_JNI_SIGNATURES.txt
           jar cf /tmp/vtuan-gate.jar -C /tmp/gate-classes .
           "$ANDROID_HOME/build-tools/35.0.0/d8" --min-api 21 \
             --lib "$ANDROID_HOME/platforms/android-35/android.jar" \
@@ -140,5 +146,7 @@ jobs:
             /tmp/vtuan-result/VTUAN-V4-INTEGRATED-TEST.apk
             /tmp/vtuan-result/READ_ME_FIRST.txt
             /tmp/vtuan-result/manifest-check.txt
+            /tmp/vtuan-result/V4_JNI_ABI_VERIFIED.json
+            /tmp/vtuan-result/V4_JAVA_JNI_SIGNATURES.txt
           if-no-files-found: error
           retention-days: 5
