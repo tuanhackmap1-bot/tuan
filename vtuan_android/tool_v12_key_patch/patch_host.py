@@ -22,7 +22,7 @@ ANDROID = "{http://schemas.android.com/apk/res/android}"
 GATE = "com.vtuan.gate.KeyActivity"
 KEY_META = "vtuan.original_launcher"
 INTERNET = "android.permission.INTERNET"
-ET.register_namespace("android", "http://schemas.android.com/apk/res/android>"[:-1])
+ET.register_namespace("android", "http://schemas.android.com/apk/res/android")
 
 
 def command(args: list[str]) -> None:
