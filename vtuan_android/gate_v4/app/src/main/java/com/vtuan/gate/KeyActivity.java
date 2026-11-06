@@ -18,13 +18,14 @@ import java.nio.charset.StandardCharsets;
 public final class KeyActivity extends Activity {
   private static final String HOST="https://vtuan-103-159-51-231.sslip.io";
   private static final String PREF="v4_key_state";
-  private EditText input;
+  private EditText input, svField;
   private CheckBox save,auto;
   private TextView status;
   private Button submit, launch;
   private SharedPreferences prefs;
   private boolean busy=false;
   private String verifiedKey=null;
+  private String verifiedServer=null;
 
   private int d(float x){return (int)(x*getResources().getDisplayMetrics().density+0.5f);}
   private GradientDrawable bg(int fill,int outline,int radius){
@@ -65,6 +66,15 @@ public final class KeyActivity extends Activity {
     input.setPadding(d(15),0,d(15),0);
     input.setBackground(bg(0xff513268,0xffb87bed,22));
     panel.addView(input,item(-1,45,13));
+    svField=new EditText(this);
+    svField.setSingleLine(true);
+    svField.setTextSize(12);
+    svField.setTextColor(Color.WHITE);
+    svField.setHintTextColor(0xffd0aadf);
+    svField.setHint("Mã SV con (để trống nếu key Admin tổng)");
+    svField.setPadding(d(15),0,d(15),0);
+    svField.setBackground(bg(0xff513268,0xffb87bed,22));
+    panel.addView(svField,item(-1,45,9));
     LinearLayout options=new LinearLayout(this);
     options.setGravity(Gravity.CENTER_VERTICAL);
     save=new CheckBox(this);auto=new CheckBox(this);
@@ -97,10 +107,21 @@ public final class KeyActivity extends Activity {
       @Override public void beforeTextChanged(CharSequence value,int start,int count,int after){}
       @Override public void onTextChanged(CharSequence value,int start,int before,int count){
         verifiedKey=null;
+        verifiedServer=null;
         launch.setVisibility(View.GONE);
       }
       @Override public void afterTextChanged(Editable value){}
     });
+    svField.addTextChangedListener(new TextWatcher(){
+      @Override public void beforeTextChanged(CharSequence value,int start,int count,int after){}
+      @Override public void onTextChanged(CharSequence value,int start,int before,int count){
+        verifiedKey=null;
+        verifiedServer=null;
+        launch.setVisibility(View.GONE);
+      }
+      @Override public void afterTextChanged(Editable value){}
+    });
+    svField.setText(prefs.getString("server_slug",""));
     String previous=prefs.getString("activated_key","");
     if(previous!=null&&!previous.isEmpty()) {input.setText(previous);save.setChecked(true);}
     auto.setChecked(prefs.getBoolean("auto",false));
@@ -157,7 +178,8 @@ public final class KeyActivity extends Activity {
     }
   }
   private void openGame(){
-    if(verifiedKey==null || !verifiedKey.equals(input.getText().toString().trim())){
+    if(verifiedKey==null || !verifiedKey.equals(input.getText().toString().trim()) ||
+       verifiedServer==null || !verifiedServer.equals(KeyApiPath.normalizeServer(svField.getText().toString()))){
       status.setText("Hãy xác thực key hiện tại trước khi mở game.");
       launch.setVisibility(View.GONE);
       return;
@@ -177,22 +199,29 @@ public final class KeyActivity extends Activity {
     if(busy)return;
     String key=input.getText().toString().trim();
     if(key.length()<8 || key.length()>160){status.setText("Key phải dài từ 8 đến 160 ký tự.");return;}
+    String serverId=KeyApiPath.normalizeServer(svField.getText().toString());
+    if(!KeyApiPath.isValidServer(serverId)){
+      status.setText("Mã SV con không hợp lệ (chỉ a-z, 0-9, -, từ 3 đến 32 ký tự).");
+      return;
+    }
     verifiedKey=null;
+    verifiedServer=null;
     launch.setVisibility(View.GONE);
     busy=true;submit.setEnabled(false);status.setText("Đang kiểm tra key...");
     new Thread(()->{
       try{
         JSONObject payload=new JSONObject();payload.put("key",key);
-        JSONObject outcome=request("/api/activate",payload);
+        JSONObject outcome=request(KeyApiPath.endpoint(serverId,false),payload);
         if(!outcome.optBoolean("ok",false)){
-          JSONObject check=request("/api/verify",payload);
+          JSONObject check=request(KeyApiPath.endpoint(serverId,true),payload);
           if(check.optBoolean("ok",false))outcome=check;
         }
         final JSONObject response=outcome;
         runOnUiThread(()->{
           if(isFinishing() || isDestroyed())return;
           busy=false;submit.setEnabled(true);
-          if(!key.equals(input.getText().toString().trim())){
+          if(!key.equals(input.getText().toString().trim()) ||
+             !serverId.equals(KeyApiPath.normalizeServer(svField.getText().toString()))){
             status.setText("Key đã thay đổi. Hãy xác thực lại key mới.");
             return;
           }
@@ -206,10 +235,14 @@ public final class KeyActivity extends Activity {
             status.setText("Phản hồi máy chủ thiếu thông tin thời hạn. Không chấp nhận.");
             return;
           }
-          if(save.isChecked())prefs.edit().putString("activated_key",key).putBoolean("auto",auto.isChecked()).apply();
-          else prefs.edit().remove("activated_key").putBoolean("auto",false).apply();
+          if(save.isChecked())prefs.edit().putString("activated_key",key)
+              .putString("server_slug",serverId).putBoolean("auto",auto.isChecked()).apply();
+          else prefs.edit().remove("activated_key").remove("server_slug")
+              .putBoolean("auto",false).apply();
           verifiedKey=key;
-          status.setText("✓ Key hợp lệ\nGói: "+days+" ngày\nHết hạn: "+expiry.replace('T',' ')+
+          verifiedServer=serverId;
+          status.setText("✓ Key hợp lệ\nServer: "+(serverId.isEmpty()?"Admin tổng":serverId)+
+                  "\nGói: "+days+" ngày\nHết hạn: "+expiry.replace('T',' ')+
                   "\nCòn lại (ước tính): "+KeyExpiry.remainingText(expiry,System.currentTimeMillis()));
           launch.setVisibility(View.VISIBLE);
           if(auto.isChecked())openGame();
