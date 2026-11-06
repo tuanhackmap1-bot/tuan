@@ -10,7 +10,7 @@ import zipfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from patch_host import ANDROID, GATE, KEY_META, append_gate_dex, patch_manifest
+from patch_host import ANDROID, GATE, KEY_META, append_gate_dex, patch_manifest, verify_unchanged_payload
 
 P = "com.example.vtuantesthost"
 START = '<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="'+P+'">'
@@ -93,6 +93,42 @@ class Tests(unittest.TestCase):
         patch_manifest(p)
         with self.assertRaisesRegex(ValueError,"already contains"):
             patch_manifest(p)
+
+    def test_native_and_assets_are_preserved(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            original=Path(tmp)/"original.apk"
+            patched=Path(tmp)/"patched.apk"
+            with zipfile.ZipFile(original,"w") as src:
+                src.writestr("lib/arm64-v8a/libexample.so",b"ELF original bytes")
+                src.writestr("assets/data.bin",b"original asset")
+                src.writestr("classes.dex",b"original dex")
+            with zipfile.ZipFile(patched,"w") as dst:
+                dst.writestr("lib/arm64-v8a/libexample.so",b"ELF original bytes")
+                dst.writestr("assets/data.bin",b"original asset")
+                dst.writestr("classes.dex",b"changed dex allowed")
+            self.assertEqual(verify_unchanged_payload(original,patched),2)
+
+    def test_native_library_disappearance_is_a_fatal_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            original=Path(tmp)/"original.apk"
+            patched=Path(tmp)/"patched.apk"
+            with zipfile.ZipFile(original,"w") as src:
+                src.writestr("lib/arm64-v8a/libgcloud.so",b"native lib")
+            with zipfile.ZipFile(patched,"w") as dst:
+                dst.writestr("classes.dex",b"host bytecode")
+            with self.assertRaisesRegex(ValueError,"libgcloud\\.so"):
+                verify_unchanged_payload(original,patched)
+
+    def test_native_library_corruption_is_a_fatal_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            original=Path(tmp)/"original.apk"
+            patched=Path(tmp)/"patched.apk"
+            with zipfile.ZipFile(original,"w") as src:
+                src.writestr("lib/arm64-v8a/libgcloud.so",b"valid native lib")
+            with zipfile.ZipFile(patched,"w") as dst:
+                dst.writestr("lib/arm64-v8a/libgcloud.so",b"corrupted lib")
+            with self.assertRaisesRegex(ValueError,"modified.*libgcloud\\.so"):
+                verify_unchanged_payload(original,patched)
 
     def test_add_dex_preserves_original(self):
         with tempfile.TemporaryDirectory() as tmp:
