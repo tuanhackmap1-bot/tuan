@@ -73,13 +73,20 @@ def main(apk_name: str, output_dir: str):
 
     disassembler = Cs(CS_ARCH_ARM64, CS_MODE_ARM)
     disassembler.detail = True
+    disassembler.skipdata = True
     insn_count = 0
-    for seg in segments:
-        if not (seg["flags"] & 1):
-            continue
-        code = binary[seg["start"]:seg["end"]]
+    executable_sections = [section for section in elf.iter_sections() if int(section["sh_flags"]) & 4]
+    if not executable_sections:
+        raise SystemExit("REFUSED: ELF has no executable sections")
+    for section in executable_sections:
+        start = int(section["sh_offset"])
+        end = start + int(section["sh_size"])
+        code = binary[start:end]
         pages = {}
-        for insn in disassembler.disasm(code, seg["vaddr"]):
+        for insn in disassembler.disasm(code, int(section["sh_addr"])):
+            if insn.id == 0:
+                pages.clear()
+                continue
             insn_count += 1
             ops = insn.operands
             if insn.mnemonic == "adrp" and len(ops) >= 2 and ops[0].type == CS_OP_REG and ops[1].type == CS_OP_IMM:
