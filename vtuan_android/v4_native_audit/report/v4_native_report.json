@@ -7,6 +7,36 @@
   "addresses_are": "RVA relative to libysmteam.so, NOT IL2CPP/game offsets",
   "not_verified": "Which code refs implement ESP/AIM/hack map, game-version compatibility, in-game behavior",
   "decoded_arm64_instructions": 785928,
+  "elf_section_names": [
+    "",
+    ".note.gnu.build-id",
+    ".hash",
+    ".gnu.hash",
+    ".dynsym",
+    ".dynstr",
+    ".gnu.version",
+    ".gnu.version_r",
+    ".rela.dyn",
+    ".rela.plt",
+    ".plt",
+    ".text",
+    ".rodata",
+    ".eh_frame_hdr",
+    ".eh_frame",
+    ".gcc_except_table",
+    ".note.android.ident",
+    ".init_array",
+    ".fini_array",
+    ".data.rel.ro",
+    ".dynamic",
+    ".got",
+    ".data",
+    ".bss",
+    ".comment",
+    ".shstrtab"
+  ],
+  "unwind_fde_function_ranges": 8522,
+  "unwind_parse_status": "parsed",
   "exported_native_functions": [
     {
       "name": "SSL_set_connect_state",
@@ -21988,7 +22018,8 @@
       "rva": 264424,
       "file_offset": 264424,
       "bytes_len": 23,
-      "code_refs_rva": []
+      "code_refs_rva": [],
+      "enclosing_unwind_functions": []
     },
     {
       "text": "ASN1_VISIBLESTRING_it",
@@ -21996,7 +22027,8 @@
       "rva": 264448,
       "file_offset": 264448,
       "bytes_len": 21,
-      "code_refs_rva": []
+      "code_refs_rva": [],
+      "enclosing_unwind_functions": []
     },
     {
       "text": "ASN1_VISIBLESTRING_new",
@@ -22004,7 +22036,8 @@
       "rva": 264470,
       "file_offset": 264470,
       "bytes_len": 22,
-      "code_refs_rva": []
+      "code_refs_rva": [],
+      "enclosing_unwind_functions": []
     },
     {
       "text": "d2i_ASN1_VISIBLESTRING",
@@ -22012,7 +22045,8 @@
       "rva": 264961,
       "file_offset": 264961,
       "bytes_len": 22,
-      "code_refs_rva": []
+      "code_refs_rva": [],
+      "enclosing_unwind_functions": []
     },
     {
       "text": "i2d_ASN1_VISIBLESTRING",
@@ -22020,7 +22054,8 @@
       "rva": 265360,
       "file_offset": 265360,
       "bytes_len": 22,
-      "code_refs_rva": []
+      "code_refs_rva": [],
+      "enclosing_unwind_functions": []
     },
     {
       "text": "Aim HP Lowest",
@@ -22028,7 +22063,8 @@
       "rva": 3986176,
       "file_offset": 3986176,
       "bytes_len": 13,
-      "code_refs_rva": []
+      "code_refs_rva": [],
+      "enclosing_unwind_functions": []
     },
     {
       "text": "Aim HP %",
@@ -22041,6 +22077,10 @@
         3918812,
         3928840,
         3928848
+      ],
+      "enclosing_unwind_functions": [
+        3915288,
+        3925588
       ]
     },
     {
@@ -22049,7 +22089,8 @@
       "rva": 3986303,
       "file_offset": 3986303,
       "bytes_len": 6,
-      "code_refs_rva": []
+      "code_refs_rva": [],
+      "enclosing_unwind_functions": []
     },
     {
       "text": "[HideSkinLSD] player=%u hero=%u skin=%u -> %u",
@@ -22064,6 +22105,11 @@
         2662080,
         3923272,
         3923276
+      ],
+      "enclosing_unwind_functions": [
+        946704,
+        2661636,
+        3922672
       ]
     },
     {
@@ -22075,6 +22121,9 @@
       "code_refs_rva": [
         966276,
         966292
+      ],
+      "enclosing_unwind_functions": [
+        961872
       ]
     },
     {
@@ -22088,6 +22137,9 @@
         966340,
         966372,
         966388
+      ],
+      "enclosing_unwind_functions": [
+        961872
       ]
     },
     {
@@ -22099,6 +22151,9 @@
       "code_refs_rva": [
         966328,
         966344
+      ],
+      "enclosing_unwind_functions": [
+        961872
       ]
     },
     {
@@ -22114,6 +22169,9 @@
         966472,
         966496,
         966508
+      ],
+      "enclosing_unwind_functions": [
+        961872
       ]
     },
     {
@@ -22125,6 +22183,9 @@
       "code_refs_rva": [
         966532,
         966552
+      ],
+      "enclosing_unwind_functions": [
+        961872
       ]
     },
     {
@@ -22138,6 +22199,9 @@
         966640,
         966664,
         966676
+      ],
+      "enclosing_unwind_functions": [
+        961872
       ]
     },
     {
@@ -22153,6 +22217,9 @@
         967108,
         967132,
         967144
+      ],
+      "enclosing_unwind_functions": [
+        961872
       ]
     },
     {
@@ -22168,6 +22235,9 @@
         967264,
         967288,
         967300
+      ],
+      "enclosing_unwind_functions": [
+        961872
       ]
     },
     {
@@ -22203,6 +22273,13 @@
         1189528,
         1395020,
         1395024
+      ],
+      "enclosing_unwind_functions": [
+        961872,
+        1149788,
+        1160796,
+        1175480,
+        1394652
       ]
     },
     {
@@ -22214,6 +22291,9 @@
       "code_refs_rva": [
         979620,
         979636
+      ],
+      "enclosing_unwind_functions": [
+        961872
       ]
     },
     {
@@ -22222,7 +22302,8 @@
       "rva": 3994054,
       "file_offset": 3994054,
       "bytes_len": 5,
-      "code_refs_rva": []
+      "code_refs_rva": [],
+      "enclosing_unwind_functions": []
     },
     {
       "text": "aimSkills",
@@ -22233,6 +22314,9 @@
       "code_refs_rva": [
         1074352,
         1074356
+      ],
+      "enclosing_unwind_functions": [
+        1012804
       ]
     },
     {
@@ -22244,6 +22328,9 @@
       "code_refs_rva": [
         1074376,
         1074384
+      ],
+      "enclosing_unwind_functions": [
+        1012804
       ]
     },
     {
@@ -22255,6 +22342,9 @@
       "code_refs_rva": [
         1074400,
         1074408
+      ],
+      "enclosing_unwind_functions": [
+        1012804
       ]
     },
     {
@@ -22266,6 +22356,9 @@
       "code_refs_rva": [
         1074420,
         1074428
+      ],
+      "enclosing_unwind_functions": [
+        1012804
       ]
     },
     {
@@ -22277,6 +22370,9 @@
       "code_refs_rva": [
         1074536,
         1074540
+      ],
+      "enclosing_unwind_functions": [
+        1012804
       ]
     },
     {
@@ -22288,6 +22384,9 @@
       "code_refs_rva": [
         1074580,
         1074596
+      ],
+      "enclosing_unwind_functions": [
+        1012804
       ]
     },
     {
@@ -22299,6 +22398,9 @@
       "code_refs_rva": [
         1102092,
         1102096
+      ],
+      "enclosing_unwind_functions": [
+        1102004
       ]
     },
     {
@@ -22310,6 +22412,9 @@
       "code_refs_rva": [
         1102276,
         1102284
+      ],
+      "enclosing_unwind_functions": [
+        1102004
       ]
     },
     {
@@ -22321,6 +22426,9 @@
       "code_refs_rva": [
         1102536,
         1102540
+      ],
+      "enclosing_unwind_functions": [
+        1102004
       ]
     },
     {
@@ -22334,6 +22442,9 @@
         1102872,
         1102884,
         1102888
+      ],
+      "enclosing_unwind_functions": [
+        1102004
       ]
     },
     {
@@ -22345,6 +22456,9 @@
       "code_refs_rva": [
         1102908,
         1102912
+      ],
+      "enclosing_unwind_functions": [
+        1102004
       ]
     },
     {
@@ -22358,6 +22472,9 @@
         925880,
         925904,
         925920
+      ],
+      "enclosing_unwind_functions": [
+        925460
       ]
     },
     {
@@ -22413,6 +22530,11 @@
         1174328,
         1174568,
         1174584
+      ],
+      "enclosing_unwind_functions": [
+        1146820,
+        1147244,
+        1160796
       ]
     },
     {
@@ -22424,6 +22546,9 @@
       "code_refs_rva": [
         1160836,
         1160844
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22441,6 +22566,9 @@
         1163240,
         1163280,
         1163296
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22454,6 +22582,9 @@
         1162832,
         1162872,
         1162888
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22471,6 +22602,9 @@
         1166348,
         1166392,
         1166408
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22484,6 +22618,9 @@
         1163036,
         1163076,
         1163092
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22497,6 +22634,9 @@
         1163340,
         1163384,
         1163400
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22510,6 +22650,9 @@
         1163444,
         1163484,
         1163500
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22523,6 +22666,9 @@
         1163544,
         1163588,
         1163604
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22536,6 +22682,9 @@
         1163648,
         1163688,
         1163704
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22549,6 +22698,9 @@
         1164264,
         1164304,
         1164320
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22562,6 +22714,9 @@
         1165456,
         1165496,
         1165512
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22575,6 +22730,9 @@
         1165560,
         1165604,
         1165620
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22588,6 +22746,9 @@
         1165668,
         1165728,
         1165744
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22629,6 +22790,13 @@
         1223096,
         1277600,
         1277604
+      ],
+      "enclosing_unwind_functions": [
+        1149788,
+        1160796,
+        1210740,
+        1222264,
+        1277428
       ]
     },
     {
@@ -22644,6 +22812,10 @@
         1166504,
         1223248,
         1223252
+      ],
+      "enclosing_unwind_functions": [
+        1160796,
+        1222264
       ]
     },
     {
@@ -22659,6 +22831,10 @@
         1236988,
         1243304,
         1243312
+      ],
+      "enclosing_unwind_functions": [
+        1175480,
+        1236584
       ]
     },
     {
@@ -22670,6 +22846,9 @@
       "code_refs_rva": [
         1249080,
         1249092
+      ],
+      "enclosing_unwind_functions": [
+        1236584
       ]
     },
     {
@@ -22681,6 +22860,9 @@
       "code_refs_rva": [
         1280916,
         1280920
+      ],
+      "enclosing_unwind_functions": [
+        1280544
       ]
     },
     {
@@ -22692,6 +22874,9 @@
       "code_refs_rva": [
         1281820,
         1281828
+      ],
+      "enclosing_unwind_functions": [
+        1280544
       ]
     },
     {
@@ -22705,6 +22890,10 @@
         1281796,
         1284196,
         1284200
+      ],
+      "enclosing_unwind_functions": [
+        1280544,
+        1282892
       ]
     },
     {
@@ -22716,6 +22905,9 @@
       "code_refs_rva": [
         1281924,
         1281928
+      ],
+      "enclosing_unwind_functions": [
+        1280544
       ]
     },
     {
@@ -22729,6 +22921,10 @@
         1282496,
         1284208,
         1284212
+      ],
+      "enclosing_unwind_functions": [
+        1280544,
+        1282892
       ]
     },
     {
@@ -22740,6 +22936,9 @@
       "code_refs_rva": [
         1284232,
         1284236
+      ],
+      "enclosing_unwind_functions": [
+        1282892
       ]
     },
     {
@@ -22751,6 +22950,9 @@
       "code_refs_rva": [
         1284272,
         1284276
+      ],
+      "enclosing_unwind_functions": [
+        1282892
       ]
     },
     {
@@ -22762,6 +22964,9 @@
       "code_refs_rva": [
         1284332,
         1284336
+      ],
+      "enclosing_unwind_functions": [
+        1282892
       ]
     },
     {
@@ -22773,6 +22978,9 @@
       "code_refs_rva": [
         1302544,
         1302548
+      ],
+      "enclosing_unwind_functions": [
+        1302488
       ]
     },
     {
@@ -22784,6 +22992,9 @@
       "code_refs_rva": [
         1302828,
         1302832
+      ],
+      "enclosing_unwind_functions": [
+        1302488
       ]
     },
     {
@@ -22795,6 +23006,9 @@
       "code_refs_rva": [
         1304024,
         1304028
+      ],
+      "enclosing_unwind_functions": [
+        1303208
       ]
     },
     {
@@ -22810,6 +23024,10 @@
         1170448,
         1259672,
         1259676
+      ],
+      "enclosing_unwind_functions": [
+        1160796,
+        1236584
       ]
     },
     {
@@ -22825,6 +23043,10 @@
         1168344,
         1286568,
         1286572
+      ],
+      "enclosing_unwind_functions": [
+        1160796,
+        1285608
       ]
     },
     {
@@ -22836,6 +23058,9 @@
       "code_refs_rva": [
         1290224,
         1290236
+      ],
+      "enclosing_unwind_functions": [
+        1290076
       ]
     },
     {
@@ -22847,6 +23072,9 @@
       "code_refs_rva": [
         1290172,
         1290180
+      ],
+      "enclosing_unwind_functions": [
+        1290076
       ]
     },
     {
@@ -22860,6 +23088,9 @@
         1166044,
         1166084,
         1166100
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22873,6 +23104,9 @@
         1166552,
         1166588,
         1166604
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22886,6 +23120,9 @@
         1167088,
         1167128,
         1167144
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22899,6 +23136,9 @@
         1167536,
         1167580,
         1167596
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22912,6 +23152,9 @@
         1167664,
         1167712,
         1167728
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22925,6 +23168,9 @@
         1167668,
         1167716,
         1167732
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22938,6 +23184,9 @@
         1167884,
         1167924,
         1167940
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22951,6 +23200,9 @@
         1168392,
         1168436,
         1168452
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22962,6 +23214,9 @@
       "code_refs_rva": [
         1168476,
         1168488
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22973,6 +23228,9 @@
       "code_refs_rva": [
         1168492,
         1168496
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22984,6 +23242,9 @@
       "code_refs_rva": [
         1168528,
         1168536
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -22995,6 +23256,9 @@
       "code_refs_rva": [
         1168560,
         1168568
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -23008,6 +23272,9 @@
         1170188,
         1170232,
         1170248
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -23021,6 +23288,9 @@
         1170288,
         1170328,
         1170344
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -23038,6 +23308,9 @@
         1171524,
         1171568,
         1171584
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -23051,6 +23324,9 @@
         1173952,
         1173992,
         1174008
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -23064,6 +23340,9 @@
         1174060,
         1174100,
         1174116
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -23077,6 +23356,9 @@
         1174168,
         1174208,
         1174224
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -23116,6 +23398,12 @@
         1211044,
         1395092,
         1395096
+      ],
+      "enclosing_unwind_functions": [
+        1149788,
+        1160796,
+        1210740,
+        1394652
       ]
     },
     {
@@ -23127,6 +23415,9 @@
       "code_refs_rva": [
         1174572,
         1174588
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -23138,6 +23429,9 @@
       "code_refs_rva": [
         1174660,
         1174668
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -23149,6 +23443,9 @@
       "code_refs_rva": [
         1174692,
         1174700
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -23160,6 +23457,9 @@
       "code_refs_rva": [
         1174724,
         1174732
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -23229,6 +23529,9 @@
         1170960,
         1171044,
         1171060
+      ],
+      "enclosing_unwind_functions": [
+        1160796
       ]
     },
     {
@@ -23240,6 +23543,9 @@
       "code_refs_rva": [
         1401592,
         1401600
+      ],
+      "enclosing_unwind_functions": [
+        1397908
       ]
     },
     {
@@ -23257,6 +23563,10 @@
         1613540,
         1681636,
         1681640
+      ],
+      "enclosing_unwind_functions": [
+        1536976,
+        1642972
       ]
     },
     {
@@ -23274,6 +23584,10 @@
         1613636,
         1681724,
         1681728
+      ],
+      "enclosing_unwind_functions": [
+        1536976,
+        1642972
       ]
     },
     {
@@ -23282,7 +23596,8 @@
       "rva": 7995637,
       "file_offset": 7995637,
       "bytes_len": 14,
-      "code_refs_rva": []
+      "code_refs_rva": [],
+      "enclosing_unwind_functions": []
     },
     {
       "text": "DragDropTargetBg",
@@ -23290,7 +23605,8 @@
       "rva": 7995652,
       "file_offset": 7995652,
       "bytes_len": 16,
-      "code_refs_rva": []
+      "code_refs_rva": [],
+      "enclosing_unwind_functions": []
     },
     {
       "text": "[io] Calling Platform_SetImeDataFn(): WantVisible: %d, InputPos (%.2f,%.2f) for Viewport 0x%08X",
@@ -23301,6 +23617,9 @@
       "code_refs_rva": [
         2068932,
         2068944
+      ],
+      "enclosing_unwind_functions": [
+        2068680
       ]
     },
     {
@@ -23312,6 +23631,9 @@
       "code_refs_rva": [
         2071736,
         2071740
+      ],
+      "enclosing_unwind_functions": [
+        2071680
       ]
     },
     {
@@ -23320,7 +23642,8 @@
       "rva": 8000659,
       "file_offset": 8000659,
       "bytes_len": 42,
-      "code_refs_rva": []
+      "code_refs_rva": [],
+      "enclosing_unwind_functions": []
     },
     {
       "text": "Windows Minimap",
@@ -23328,7 +23651,8 @@
       "rva": 8002273,
       "file_offset": 8002273,
       "bytes_len": 15,
-      "code_refs_rva": []
+      "code_refs_rva": [],
+      "enclosing_unwind_functions": []
     },
     {
       "text": "NavActive: %d, NavVisible: %d",
@@ -23336,7 +23660,8 @@
       "rva": 8004314,
       "file_offset": 8004314,
       "bytes_len": 29,
-      "code_refs_rva": []
+      "code_refs_rva": [],
+      "enclosing_unwind_functions": []
     },
     {
       "text": "NavCursorVisible: %d, NavHighlightItemUnderNav: %d",
@@ -23344,7 +23669,8 @@
       "rva": 8004414,
       "file_offset": 8004414,
       "bytes_len": 50,
-      "code_refs_rva": []
+      "code_refs_rva": [],
+      "enclosing_unwind_functions": []
     },
     {
       "text": "NavWindowingTarget: '%s'",
@@ -23352,7 +23678,8 @@
       "rva": 8004532,
       "file_offset": 8004532,
       "bytes_len": 24,
-      "code_refs_rva": []
+      "code_refs_rva": [],
+      "enclosing_unwind_functions": []
     },
     {
       "text": "Enabled: %d, VisibleX/Y: %d/%d, RequestOutput: %d, SkipItems: %d, DrawChannels: %d,%d",
@@ -23360,7 +23687,8 @@
       "rva": 8013585,
       "file_offset": 8013585,
       "bytes_len": 85,
-      "code_refs_rva": []
+      "code_refs_rva": [],
+      "enclosing_unwind_functions": []
     },
     {
       "text": "Visible=%d%n",
@@ -23371,6 +23699,9 @@
       "code_refs_rva": [
         2150684,
         2150688
+      ],
+      "enclosing_unwind_functions": [
+        2150272
       ]
     },
     {
@@ -23382,6 +23713,9 @@
       "code_refs_rva": [
         2151172,
         2151200
+      ],
+      "enclosing_unwind_functions": [
+        2151120
       ]
     },
     {
@@ -23390,7 +23724,8 @@
       "rva": 8052374,
       "file_offset": 8052374,
       "bytes_len": 12,
-      "code_refs_rva": []
+      "code_refs_rva": [],
+      "enclosing_unwind_functions": []
     },
     {
       "text": "targetInformation",
@@ -23398,7 +23733,8 @@
       "rva": 8054597,
       "file_offset": 8054597,
       "bytes_len": 17,
-      "code_refs_rva": []
+      "code_refs_rva": [],
+      "enclosing_unwind_functions": []
     },
     {
       "text": "X509v3 AC Targeting",
@@ -23406,7 +23742,8 @@
       "rva": 8054615,
       "file_offset": 8054615,
       "bytes_len": 19,
-      "code_refs_rva": []
+      "code_refs_rva": [],
+      "enclosing_unwind_functions": []
     },
     {
       "text": "ASN1_VISIBLESTRING",
@@ -23414,7 +23751,8 @@
       "rva": 8101361,
       "file_offset": 8101361,
       "bytes_len": 18,
-      "code_refs_rva": []
+      "code_refs_rva": [],
+      "enclosing_unwind_functions": []
     },
     {
       "text": "SSL: no alternative certificate subject name matches target host name '%s'",
@@ -23425,6 +23763,9 @@
       "code_refs_rva": [
         2829680,
         2829684
+      ],
+      "enclosing_unwind_functions": [
+        2822364
       ]
     },
     {
@@ -23436,6 +23777,9 @@
       "code_refs_rva": [
         2831696,
         2831700
+      ],
+      "enclosing_unwind_functions": [
+        2822364
       ]
     },
     {
@@ -23444,7 +23788,8 @@
       "rva": 8204882,
       "file_offset": 8204882,
       "bytes_len": 7,
-      "code_refs_rva": []
+      "code_refs_rva": [],
+      "enclosing_unwind_functions": []
     },
     {
       "text": "encipherOnly",
@@ -23452,7 +23797,8 @@
       "rva": 8239294,
       "file_offset": 8239294,
       "bytes_len": 12,
-      "code_refs_rva": []
+      "code_refs_rva": [],
+      "enclosing_unwind_functions": []
     },
     {
       "text": "decipherOnly",
@@ -23460,7 +23806,8 @@
       "rva": 8239321,
       "file_offset": 8239321,
       "bytes_len": 12,
-      "code_refs_rva": []
+      "code_refs_rva": [],
+      "enclosing_unwind_functions": []
     }
   ]
 }
