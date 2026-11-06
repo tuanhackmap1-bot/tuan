@@ -3,15 +3,17 @@
   "apk_bytes": 226470689,
   "v4_lib_sha256": "752bcdc20d88fe535b4de156790e7468bf58c61b21dfd1eba5ee2fbda0facb38",
   "v4_lib_bytes": 9055952,
-  "dex_count": 0,
-  "native_so_count": 0,
-  "abi_counts": {},
+  "dex_count": 6,
+  "native_so_count": 36,
+  "abi_counts": {
+    "arm64-v8a": 36
+  },
   "interesting_libraries_packaged": {
-    "libysmteam.so": 0,
+    "libysmteam.so": 1,
     "libil2cpp.so": 0,
     "libgcloud.so": 0,
     "libunity.so": 0,
-    "libmain.so": 0,
+    "libmain.so": 1,
     "libc++_shared.so": 0,
     "libdobby.so": 0
   },
@@ -19,6 +21,33 @@
     "libgcloud.so",
     "libil2cpp.so"
   ],
-  "dependency_info": {},
+  "dependency_info": {
+    "lib/arm64-v8a/libmain.so": {
+      "needed": [
+        "libanort.so",
+        "libc.so",
+        "libdl.so",
+        "liblog.so",
+        "libm.so",
+        "libstdc++.so"
+      ],
+      "error": null,
+      "bytes": 43712
+    },
+    "lib/arm64-v8a/libysmteam.so": {
+      "needed": [
+        "libEGL.so",
+        "libGLESv3.so",
+        "libandroid.so",
+        "libc.so",
+        "libdl.so",
+        "liblog.so",
+        "libm.so",
+        "libz.so"
+      ],
+      "error": null,
+      "bytes": 9055952
+    }
+  },
   "caveat": "An absent .so in a single APK can exist in a split APK, dynamic download, or app-private storage. DT_NEEDED lists are static and do not cover dlopen, JNI reflection, or game behavior."
 }
