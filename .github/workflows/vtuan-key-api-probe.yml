@@ -31,3 +31,26 @@ jobs:
               --data '{"key":"VTUAN-NONEXISTENT-DIAGNOSTIC-KEY-NO-REAL-KEY","device_id":"VTUAN-DIAGNOSTIC"}' \
               --output /dev/null --write-out '%{http_code}\n' "$HOST$path" || echo '(connection failed)'
           done
+          echo "Inspecting only public error schema for an intentionally invalid key."
+          for path in /api/activate /api/verify /api/sv/test-ctv/verify; do
+            body=$(mktemp)
+            code=$(curl --silent --max-time 12 --connect-timeout 5 \
+              --header 'Content-Type: application/json' \
+              --data '{"key":"VTUAN-NONEXISTENT-DIAGNOSTIC-KEY-NO-REAL-KEY"}' \
+              --output "$body" --write-out '%{http_code}' "$HOST$path")
+            python3 - "$path" "$code" "$body" <<'PY'
+          import json,sys
+          path,code,filename=sys.argv[1:]
+          with open(filename,'rb') as f:
+              raw=f.read(4096)
+          try:
+              obj=json.loads(raw)
+              if isinstance(obj,dict):
+                  print(path, code, 'JSON keys:',sorted(obj), 'ok:',obj.get('ok'))
+              else:
+                  print(path,code,'JSON type:',type(obj).__name__)
+          except Exception:
+              print(path,code,'non-JSON response')
+          PY
+            rm -f "$body"
+          done
