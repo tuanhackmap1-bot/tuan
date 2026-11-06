@@ -45,19 +45,27 @@ public final class KeyActivity extends Activity {
   }
   @Override public void onCreate(Bundle b){
     super.onCreate(b);
-    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
     prefs=getSharedPreferences(PREF,MODE_PRIVATE);
     FrameLayout root=new FrameLayout(this);
     root.setBackground(new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{0xff151023,0xff271331,0xff171020}));
     setContentView(root);
+    ScrollView scroll=new ScrollView(this);
+    scroll.setFillViewport(true);
+    scroll.setClipToPadding(false);
+    scroll.setPadding(d(10),d(10),d(10),d(10));
+    root.addView(scroll,new FrameLayout.LayoutParams(-1,-1));
+    LinearLayout holder=new LinearLayout(this);
+    holder.setOrientation(LinearLayout.VERTICAL);
+    holder.setGravity(Gravity.CENTER);
+    scroll.addView(holder,new ScrollView.LayoutParams(-1,-1));
     LinearLayout panel=new LinearLayout(this);
     panel.setOrientation(1);panel.setPadding(d(16),d(16),d(16),d(15));
     panel.setBackground(bg(0xff291e3d,0xffb06cf3,17));
     panel.setElevation(d(12));
-    FrameLayout.LayoutParams box=new FrameLayout.LayoutParams(d(385),-2,Gravity.CENTER);
     int width=getResources().getDisplayMetrics().widthPixels;
-    if(width<d(410))box.width=width-d(20);
-    root.addView(panel,box);
+    LinearLayout.LayoutParams box=new LinearLayout.LayoutParams(Math.min(d(385),width-d(40)),-2);
+    holder.addView(panel,box);
     TextView title=text("CHÀO MỪNG BẠN ĐẾN VỚI VTUAN!",14,Color.WHITE,true);
     panel.addView(title,item(-1,-2,0));
     input=new EditText(this);
