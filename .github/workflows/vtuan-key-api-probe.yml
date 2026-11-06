@@ -23,3 +23,11 @@ jobs:
             curl --silent --show-error --max-time 12 --connect-timeout 5 \
               --output /dev/null --write-out '%{http_code}\n' "$HOST$path" || echo '(connection failed)'
           done
+          echo "POST probe uses only a definitely invalid diagnostic key."
+          for path in /api/activate /api/verify /api/v1/activate /api/v1/check /api/sv/test-ctv/verify; do
+            printf 'POST %s => ' "$path"
+            curl --silent --show-error --max-time 12 --connect-timeout 5 \
+              --header 'Content-Type: application/json' \
+              --data '{"key":"VTUAN-NONEXISTENT-DIAGNOSTIC-KEY-NO-REAL-KEY","device_id":"VTUAN-DIAGNOSTIC"}' \
+              --output /dev/null --write-out '%{http_code}\n' "$HOST$path" || echo '(connection failed)'
+          done
