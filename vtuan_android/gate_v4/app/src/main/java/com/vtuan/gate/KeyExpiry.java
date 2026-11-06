@@ -47,6 +47,12 @@ public final class KeyExpiry {
     return parsed.getTime()+millis-offsetMinutes*60_000L;
   }
 
+  /** Local fail-closed check before accepting server-supplied expiration. */
+  public static boolean isFuture(String expiry,long nowMillis) {
+    Long end=epochMillis(expiry);
+    return end!=null && end>nowMillis;
+  }
+
   /** An estimate based on the device's clock; never used as authorization. */
   public static String remainingText(String expiry,long nowMillis) {
     Long end=epochMillis(expiry);
