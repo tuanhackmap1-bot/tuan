@@ -10,7 +10,7 @@ import zipfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from patch_host import ANDROID, GATE, KEY_META, append_gate_dex, patch_manifest, verify_unchanged_payload
+from patch_host import ANDROID, GATE, KEY_META, append_gate_dex, patch_manifest, preflight_archive, verify_unchanged_payload
 
 P = "com.example.vtuantesthost"
 START = '<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="'+P+'">'
@@ -106,7 +106,7 @@ class Tests(unittest.TestCase):
                 dst.writestr("lib/arm64-v8a/libexample.so",b"ELF original bytes")
                 dst.writestr("assets/data.bin",b"original asset")
                 dst.writestr("classes.dex",b"changed dex allowed")
-            self.assertEqual(verify_unchanged_payload(original,patched),2)
+            self.assertEqual(verify_unchanged_payload(original,patched),3)
 
     def test_native_library_disappearance_is_a_fatal_error(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -129,6 +129,55 @@ class Tests(unittest.TestCase):
                 dst.writestr("lib/arm64-v8a/libgcloud.so",b"corrupted lib")
             with self.assertRaisesRegex(ValueError,"modified.*libgcloud\\.so"):
                 verify_unchanged_payload(original,patched)
+
+    def test_original_dex_disappearance_is_fatal(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            original=Path(tmp)/"original.apk"
+            patched=Path(tmp)/"patched.apk"
+            with zipfile.ZipFile(original,"w") as src:
+                src.writestr("classes.dex",b"original one")
+                src.writestr("classes10.dex",b"original tenth")
+            with zipfile.ZipFile(patched,"w") as dst:
+                dst.writestr("classes.dex",b"original one")
+            with self.assertRaisesRegex(ValueError,"classes10.dex"):
+                verify_unchanged_payload(original,patched)
+
+    def test_original_dex_modification_is_fatal(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            original=Path(tmp)/"original.apk"
+            patched=Path(tmp)/"patched.apk"
+            with zipfile.ZipFile(original,"w") as src:
+                src.writestr("classes.dex",b"host code")
+            with zipfile.ZipFile(patched,"w") as dst:
+                dst.writestr("classes.dex",b"changed host code")
+            with self.assertRaisesRegex(ValueError,"classes.dex"):
+                verify_unchanged_payload(original,patched)
+
+    def test_preflight_rejects_overwriting_original(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            original=Path(tmp)/"original.apk"
+            gate=Path(tmp)/"gate.apk"
+            for apk in (original,gate):
+                with zipfile.ZipFile(apk,"w") as z:
+                    z.writestr("AndroidManifest.xml",b"manifest")
+                    z.writestr("classes.dex",b"code")
+            with self.assertRaisesRegex(ValueError,"different files"):
+                preflight_archive(original,gate,original)
+            with self.assertRaisesRegex(ValueError,"different files"):
+                preflight_archive(original,gate,gate)
+            preflight_archive(original,gate,Path(tmp)/"new.apk")
+
+    def test_preflight_rejects_incomplete_apk(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            original=Path(tmp)/"bad.apk"
+            gate=Path(tmp)/"gate.apk"
+            with zipfile.ZipFile(original,"w") as z:
+                z.writestr("AndroidManifest.xml",b"manifest")
+            with zipfile.ZipFile(gate,"w") as z:
+                z.writestr("AndroidManifest.xml",b"manifest")
+                z.writestr("classes.dex",b"code")
+            with self.assertRaisesRegex(ValueError,"not a complete APK"):
+                preflight_archive(original,gate,Path(tmp)/"out.apk")
 
     def test_add_dex_preserves_original(self):
         with tempfile.TemporaryDirectory() as tmp:
