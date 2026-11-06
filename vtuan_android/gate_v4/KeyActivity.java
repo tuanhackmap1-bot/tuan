@@ -24,6 +24,7 @@ public final class KeyActivity extends Activity {
   private Button submit, launch;
   private SharedPreferences prefs;
   private boolean busy=false;
+  private String verifiedKey=null;
 
   private int d(float x){return (int)(x*getResources().getDisplayMetrics().density+0.5f);}
   private GradientDrawable bg(int fill,int outline,int radius){
@@ -95,6 +96,7 @@ public final class KeyActivity extends Activity {
     input.addTextChangedListener(new TextWatcher(){
       @Override public void beforeTextChanged(CharSequence value,int start,int count,int after){}
       @Override public void onTextChanged(CharSequence value,int start,int before,int count){
+        verifiedKey=null;
         launch.setVisibility(View.GONE);
       }
       @Override public void afterTextChanged(Editable value){}
@@ -116,25 +118,50 @@ public final class KeyActivity extends Activity {
     if(auto.isChecked() && previous!=null && !previous.isEmpty()) activate();
   }
   private JSONObject request(String endpoint,JSONObject data) throws Exception {
-    HttpURLConnection c=(HttpURLConnection)new URL(HOST+endpoint).openConnection();
-    c.setConnectTimeout(8500);c.setReadTimeout(8500);
-    c.setRequestMethod("POST");c.setDoOutput(true);
-    c.setRequestProperty("Content-Type","application/json; charset=utf-8");
-    byte[] content=data.toString().getBytes(StandardCharsets.UTF_8);
-    try(OutputStream out=c.getOutputStream()){out.write(content);}
-    int code=c.getResponseCode();
-    InputStream stream=code<400?c.getInputStream():c.getErrorStream();
-    if(stream==null)throw new IOException("Empty response");
-    StringBuilder result=new StringBuilder();
-    try(BufferedReader r=new BufferedReader(new InputStreamReader(stream,StandardCharsets.UTF_8))){
-      String line;while((line=r.readLine())!=null){
-        result.append(line);
-        if(result.length()>15000)throw new IOException("Too much data");
+    HttpURLConnection c=null;
+    try {
+      c=(HttpURLConnection)new URL(HOST+endpoint).openConnection();
+      c.setConnectTimeout(8500);
+      c.setReadTimeout(8500);
+      c.setInstanceFollowRedirects(false);
+      c.setRequestMethod("POST");
+      c.setDoOutput(true);
+      c.setRequestProperty("Content-Type","application/json; charset=utf-8");
+      c.setRequestProperty("Accept","application/json");
+      byte[] content=data.toString().getBytes(StandardCharsets.UTF_8);
+      c.setFixedLengthStreamingMode(content.length);
+      try(OutputStream out=c.getOutputStream()){out.write(content);}
+      int code=c.getResponseCode();
+      boolean httpSuccess=code>=200 && code<300;
+      InputStream stream=httpSuccess?c.getInputStream():c.getErrorStream();
+      StringBuilder body=new StringBuilder();
+      if(stream!=null)try(BufferedReader r=new BufferedReader(new InputStreamReader(stream,StandardCharsets.UTF_8))) {
+        char[] buf=new char[1024];
+        int n;
+        while((n=r.read(buf))!=-1){
+          if(body.length()+n>15000)throw new IOException("Server response too large");
+          body.append(buf,0,n);
+        }
       }
-    } finally{c.disconnect();}
-    return new JSONObject(result.toString());
+      JSONObject result;
+      try {result=new JSONObject(body.toString());}
+      catch(Exception ignored){result=new JSONObject();}
+      if(!httpSuccess) {
+        result.put("ok",false);
+        String message=result.optString("message",result.optString("error",""));
+        result.put("message","HTTP "+code+": "+(message.isEmpty()?"Yêu cầu bị từ chối":message));
+      }
+      return result;
+    } finally {
+      if(c!=null)c.disconnect();
+    }
   }
   private void openGame(){
+    if(verifiedKey==null || !verifiedKey.equals(input.getText().toString().trim())){
+      status.setText("Hãy xác thực key hiện tại trước khi mở game.");
+      launch.setVisibility(View.GONE);
+      return;
+    }
     try{
       Intent intent=getPackageManager().getLaunchIntentForPackage("com.garena.game.kgvn");
       if(intent==null){
@@ -150,6 +177,7 @@ public final class KeyActivity extends Activity {
     if(busy)return;
     String key=input.getText().toString().trim();
     if(key.length()<8 || key.length()>160){status.setText("Key phải dài từ 8 đến 160 ký tự.");return;}
+    verifiedKey=null;
     launch.setVisibility(View.GONE);
     busy=true;submit.setEnabled(false);status.setText("Đang kiểm tra key...");
     new Thread(()->{
@@ -162,7 +190,12 @@ public final class KeyActivity extends Activity {
         }
         final JSONObject response=outcome;
         runOnUiThread(()->{
+          if(isFinishing() || isDestroyed())return;
           busy=false;submit.setEnabled(true);
+          if(!key.equals(input.getText().toString().trim())){
+            status.setText("Key đã thay đổi. Hãy xác thực lại key mới.");
+            return;
+          }
           if(!response.optBoolean("ok",false)){
             String msg=response.optString("message",response.optString("error","Key không hợp lệ"));
             status.setText(msg.length()>150?msg.substring(0,150):msg);return;
@@ -175,7 +208,9 @@ public final class KeyActivity extends Activity {
           }
           if(save.isChecked())prefs.edit().putString("activated_key",key).putBoolean("auto",auto.isChecked()).apply();
           else prefs.edit().remove("activated_key").putBoolean("auto",false).apply();
-          status.setText("✓ Key hợp lệ\nGói: "+days+" ngày\nHết hạn: "+expiry.replace('T',' '));
+          verifiedKey=key;
+          status.setText("✓ Key hợp lệ\nGói: "+days+" ngày\nHết hạn: "+expiry.replace('T',' ')+
+                  "\nCòn lại (ước tính): "+KeyExpiry.remainingText(expiry,System.currentTimeMillis()));
           launch.setVisibility(View.VISIBLE);
           if(auto.isChecked())openGame();
         });
