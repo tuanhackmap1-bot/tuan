@@ -47,18 +47,13 @@ def run(report: dict) -> list[str]:
             errors.append("Wrong RVA: " + label)
         if not item.get("start_matches_candidate"):
             errors.append("FDE boundary mismatch: " + label)
+    # The per-target callee/caller lists are ranked and truncated; they are not
+    # exhaustive. The dedicated edges_between_candidates table is authoritative.
+    evidence = {(e.get("source"), e.get("destination")): e.get("count", 0)
+                for e in report.get("edges_between_candidates", [])}
     for caller_name, callee_name in EDGES:
-        caller = targets.get(caller_name, {})
-        callee = targets.get(callee_name, {})
-        if not caller or not callee:
-            continue
-        src, dest = KNOWN[caller_name], KNOWN[callee_name]
-        forward = any(int(x["rva"], 0) == dest and x.get("calls", 0) > 0
-                      for x in caller.get("direct_callees", []))
-        reverse = any(int(x["rva"], 0) == src and x.get("calls", 0) > 0
-                      for x in callee.get("direct_callers", []))
-        if not (forward and reverse):
-            errors.append("Inconsistent edge: " + caller_name + " -> " + callee_name)
+        if evidence.get((caller_name, callee_name), 0) < 1:
+            errors.append("Missing verified edge: " + caller_name + " -> " + callee_name)
     return errors
 
 def main() -> int:
@@ -75,7 +70,7 @@ def main() -> int:
         for err in errors:
             print("FAIL:", err, file=sys.stderr)
         return 1
-    print("PASS: known RVA identities, FDE boundaries and 5 bidirectional BL edges match.")
+    print("PASS: known RVA identities, FDE boundaries and 5 verified BL edges match.")
     print("LIMITATION: static graph only; no ABI, login-state or in-game function proof.")
     return 0
 
