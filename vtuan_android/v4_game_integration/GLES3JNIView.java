@@ -109,21 +109,47 @@ public final class GLES3JNIView extends GLSurfaceView implements GLSurfaceView.R
     }
 
     /** Add an in-process renderer above Unity's activity content, not a system overlay. */
-    public static boolean attach(Activity activity) {
-        if(!tryLoadNative())return false;
-        if(activity==null||activity.isFinishing()||activity.isDestroyed())return false;
+    public static GLES3JNIView attach(Activity activity) {
+        if(!tryLoadNative())return null;
+        if(activity==null||activity.isFinishing()||activity.isDestroyed())return null;
         View decor=activity.getWindow().getDecorView();
-        if(!(decor instanceof ViewGroup))return false;
+        if(!(decor instanceof ViewGroup))return null;
+        GLES3JNIView view=null;
         try {
-            GLES3JNIView view=new GLES3JNIView(activity);
+            view=new GLES3JNIView(activity);
             ((ViewGroup)decor).addView(view,
                     new ViewGroup.LayoutParams(-1,-1));
             view.onResume();
             Log.i(TAG,"V4 JNI renderer attached to "+activity.getClass().getSimpleName());
-            return true;
+            return view;
         }catch(Throwable error){
             Log.e(TAG,"Failed attaching V4 JNI renderer",error);
-            return false;
+            if(view!=null){
+                try {
+                    if(view.getParent() instanceof ViewGroup){
+                        ((ViewGroup)view.getParent()).removeView(view);
+                    }
+                }catch(Throwable ignored){}
+            }
+            return null;
         }
+    }
+
+    public void suspend(){
+        try {onPause();}
+        catch(Throwable e){Log.e(TAG,"Could not pause GL renderer",e);}
+    }
+    public void resumeRendering(){
+        try {onResume();}
+        catch(Throwable e){Log.e(TAG,"Could not resume GL renderer",e);}
+    }
+    public void detach(){
+        initialized=false;
+        suspend();
+        try {
+            if(getParent() instanceof ViewGroup){
+                ((ViewGroup)getParent()).removeView(this);
+            }
+        }catch(Throwable e){Log.e(TAG,"Failed to detach GL renderer",e);}
     }
 }
