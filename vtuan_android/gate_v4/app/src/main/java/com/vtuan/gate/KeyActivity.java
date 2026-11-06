@@ -247,7 +247,9 @@ public final class KeyActivity extends Activity {
       return;
     }
     try{
-      Intent intent=getPackageManager().getLaunchIntentForPackage("com.garena.game.kgvn");
+      // Verified V4 archive uses kgvn1; fall back to the official package.
+      Intent intent=getPackageManager().getLaunchIntentForPackage("com.garena.game.kgvn1");
+      if(intent==null)intent=getPackageManager().getLaunchIntentForPackage("com.garena.game.kgvn");
       if(intent==null){
         status.append("\nKhông tìm thấy Liên Quân đã cài.");
         return;
