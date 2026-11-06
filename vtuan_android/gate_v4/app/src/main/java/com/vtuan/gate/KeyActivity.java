@@ -248,11 +248,18 @@ public final class KeyActivity extends Activity {
     }
     try{
       // Verified V4 archive uses kgvn1; fall back to the official package.
-      Intent intent=getPackageManager().getLaunchIntentForPackage("com.garena.game.kgvn1");
-      if(intent==null)intent=getPackageManager().getLaunchIntentForPackage("com.garena.game.kgvn");
-      if(intent==null){
-        status.append("\nKhông tìm thấy Liên Quân đã cài.");
-        return;
+      Intent intent;
+      if("com.garena.game.kgvn".equals(getPackageName())) {
+        // Avoid restarting this key screen in the embedded APK.
+        intent=new Intent();
+        intent.setClassName("com.garena.game.kgvn","com.garena.game.kgtw.SGameActivity");
+      } else {
+        intent=getPackageManager().getLaunchIntentForPackage("com.garena.game.kgvn1");
+        if(intent==null)intent=getPackageManager().getLaunchIntentForPackage("com.garena.game.kgvn");
+        if(intent==null){
+          status.append("\nKhông tìm thấy Liên Quân đã cài.");
+          return;
+        }
       }
       startActivity(intent);
     }catch(Exception ignored){
