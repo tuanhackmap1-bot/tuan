@@ -1,0 +1,35 @@
+name: Package Android Linux signing tools for VTUAN APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [vtuan-v4-native-audit]
+    paths: ['.github/workflows/vtuan-linux-sign-tools.yml']
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Install SDK build-tools
+        run: |
+          SDKM=$(find "${ANDROID_HOME:-/usr/local/lib/android/sdk}/cmdline-tools" -type f -name sdkmanager | head -1)
+          test -n "$SDKM"
+          yes | "$SDKM" --licenses >/dev/null || true
+          "$SDKM" 'build-tools;35.0.0'
+      - name: Package Linux signing binaries
+        run: |
+          SRC="$ANDROID_HOME/build-tools/35.0.0"
+          mkdir -p /tmp/vtuan-linux-tools/lib
+          cp "$SRC/apksigner" "$SRC/zipalign" "$SRC/aapt" /tmp/vtuan-linux-tools/
+          cp "$SRC/lib/apksigner.jar" /tmp/vtuan-linux-tools/lib/
+          if [ -d "$SRC/lib64" ]; then cp -a "$SRC/lib64" /tmp/vtuan-linux-tools/; fi
+          chmod +x /tmp/vtuan-linux-tools/apksigner /tmp/vtuan-linux-tools/zipalign /tmp/vtuan-linux-tools/aapt
+          /tmp/vtuan-linux-tools/apksigner --version
+          /tmp/vtuan-linux-tools/zipalign -h >/tmp/help.txt 2>&1 || true
+          file /tmp/vtuan-linux-tools/zipalign
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VTUAN-ANDROID-LINUX-SIGNING-TOOLS
+          path: /tmp/vtuan-linux-tools/
+          retention-days: 3
