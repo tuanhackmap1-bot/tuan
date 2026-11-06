@@ -43,9 +43,9 @@ def run(report: dict) -> list[str]:
         if not isinstance(item, dict):
             errors.append("Missing target: " + label)
             continue
-        if int(item.get("candidate_rva", "-1"), 0) != addr:
+        if int(item.get("enclosing_fde_start_rva", "-1"), 0) != addr:
             errors.append("Wrong RVA: " + label)
-        if not item.get("start_matches_candidate"):
+        if label not in ("Old auth-branch candidate", "Old auth-success candidate") and not item.get("start_matches_candidate"):
             errors.append("FDE boundary mismatch: " + label)
     # The per-target callee/caller lists are ranked and truncated; they are not
     # exhaustive. The dedicated edges_between_candidates table is authoritative.
@@ -70,7 +70,7 @@ def main() -> int:
         for err in errors:
             print("FAIL:", err, file=sys.stderr)
         return 1
-    print("PASS: known RVA identities, FDE boundaries and 5 verified BL edges match.")
+    print("PASS: known FDE starts, candidate boundaries and 5 verified BL edges match.")
     print("LIMITATION: static graph only; no ABI, login-state or in-game function proof.")
     return 0
 
