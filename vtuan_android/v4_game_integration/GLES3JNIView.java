@@ -48,7 +48,10 @@ public final class GLES3JNIView extends GLSurfaceView implements GLSurfaceView.R
     public static native void resize(int width,int height);
     public static native void step();
     public static native boolean onTouch(int action,float x,float y);
-    public static native float[] getWindowRect();
+    // Verified ARM64 implementation calls JNIEnv->NewStringUTF (JNI vtable offset
+    // 0x538) and therefore returns java.lang.String, not a float[].
+    public static native String getWindowRect();
+    public static native void imgui_Shutdown();
 
     private boolean initialized=false;
     private final Handler ui=new Handler(Looper.getMainLooper());
