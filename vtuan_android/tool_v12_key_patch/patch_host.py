@@ -154,28 +154,48 @@ def append_gate_dex(folder: Path, gate_apk: Path) -> int:
 
 
 
-def verify_unchanged_payload(original_apk: Path, patched_apk: Path) -> int:
-    """Reject builds that drop or alter native libraries or packaged assets.
+def preflight_archive(original_apk: Path, gate_apk: Path, output_apk: Path) -> None:
+    """Refuse overwrites and verify both inputs are plausible APK archives."""
+    original = original_apk.resolve()
+    gate = gate_apk.resolve()
+    output = output_apk.resolve()
+    if original == output or gate == output or gate == original:
+        raise ValueError("Output, original APK and key-gate APK must be different files")
+    for apk, label in ((original, "Original"), (gate, "VTUAN gate")):
+        with zipfile.ZipFile(apk) as z:
+            names = set(z.namelist())
+            if "AndroidManifest.xml" not in names or "classes.dex" not in names:
+                raise ValueError(f"{label} is not a complete APK with AndroidManifest.xml and classes.dex")
+            if len(names) > 100000:
+                raise ValueError(f"{label} has too many ZIP entries")
+            if any(item.filename.startswith("/") or
+                   ".." in item.filename.split("/") for item in z.infolist()):
+                raise ValueError(f"{label} contains an unsafe ZIP entry")
+    print("Preflight: input APKs valid; output does not overwrite either original", flush=True)
 
-    In particular, silently dropping a required .so library can produce the
-    UnsatisfiedLinkError crashes seen when a third-party APK is rebuilt.
-    ZIP CRC and uncompressed sizes are compared without extracting 244 MB+
-    APK contents into memory.
+
+def verify_unchanged_payload(original_apk: Path, patched_apk: Path) -> int:
+    """Reject builds that drop or alter original DEX, native libs or assets.
+
+    Preserves the original app's bytecode and native payload while appending
+    a new classesN.dex for the VTUAN gate. ZIP CRC and uncompressed size
+    comparisons avoid loading large APK resources into memory.
     """
     preserved = 0
     with zipfile.ZipFile(original_apk) as source, zipfile.ZipFile(patched_apk) as target:
         original = {x.filename: x for x in source.infolist()
-                    if x.filename.startswith(("lib/", "assets/")) and
+                    if (x.filename.startswith(("lib/", "assets/")) or
+                        re.fullmatch(r"classes\\d*\\.dex", x.filename)) and
                     not x.is_dir()}
         output = {x.filename: x for x in target.infolist()}
         for name, before in original.items():
             after = output.get(name)
             if after is None:
-                raise ValueError(f"Patch dropped original native library or asset: {name}")
+                raise ValueError(f"Patch dropped original DEX, native library or asset: {name}")
             if before.file_size != after.file_size or before.CRC != after.CRC:
-                raise ValueError(f"Patch modified original native library or asset: {name}")
+                raise ValueError(f"Patch modified original DEX, native library or asset: {name}")
             preserved += 1
-    print(f"Preserved {preserved} original native library/asset entries", flush=True)
+    print(f"Preserved {preserved} original DEX/native library/asset entries", flush=True)
     return preserved
 
 
@@ -183,6 +203,7 @@ def patch(args: argparse.Namespace) -> None:
     for f in (args.apk, args.gate, args.apktool):
         if not f.is_file():
             raise FileNotFoundError(f)
+    preflight_archive(args.apk, args.gate, args.output)
     for exe in (args.java, args.zipalign, args.apksigner, args.keytool):
         if not shutil.which(str(exe)) and not Path(exe).is_file():
             raise FileNotFoundError(f"Required executable unavailable: {exe}")
@@ -199,7 +220,8 @@ def patch(args: argparse.Namespace) -> None:
         patch_manifest(outdir / "AndroidManifest.xml")
         append_gate_dex(outdir, args.gate)
         command([args.java, "-jar", args.apktool, "b", outdir, "-o", unsigned])
-        command([args.zipalign, "-f", "-p", "4", unsigned, aligned])
+        command([args.zipalign, "-f", "-P", "16", "4", unsigned, aligned])
+        command([args.zipalign, "-c", "-P", "16", "4", aligned])
 
         keystore = args.keystore
         if not keystore.exists():
