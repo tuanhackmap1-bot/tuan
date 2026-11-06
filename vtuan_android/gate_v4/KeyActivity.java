@@ -139,10 +139,13 @@ public final class KeyActivity extends Activity {
           }
           if(save.isChecked())prefs.edit().putString("activated_key",key).putBoolean("auto",auto.isChecked()).apply();
           else prefs.edit().remove("activated_key").putBoolean("auto",false).apply();
-          status.setText("Key hợp lệ - đang vào game...");
+          status.setText("Key hợp lệ - đang mở Liên Quân...");
           try{
-            Intent i=new Intent();
-            i.setClassName(getPackageName(),"com.garena.game.kgtw.SGameActivity");
+            Intent i=getPackageManager().getLaunchIntentForPackage("com.garena.game.kgvn");
+            if(i==null) {
+              status.setText("Key hợp lệ. Chưa tìm thấy ứng dụng Liên Quân để mở.");
+              return;
+            }
             startActivity(i);
             finish();
           }catch(Exception e){status.setText("Đã xác thực key nhưng không mở được game.");}
