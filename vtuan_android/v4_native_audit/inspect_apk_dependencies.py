@@ -79,6 +79,12 @@ def inspect(path):
             "v4_lib_bytes": len(raw),
             "dex_count": count_dex_entries(names),
             "native_so_count": len(libs),
+            "native_library_paths": libs,
+            "runtime_asset_path_candidates": sorted(
+                n for n in names if any(term in n.lower()
+                    for term in ("gcloud", "il2cpp", "unity", "anort", "global-metadata"))
+                and not n.startswith("META-INF/")
+            )[:100],
             "abi_counts": {abi: len(entries) for abi, entries in sorted(by_abi.items())},
             "interesting_libraries_packaged": {x: all_names[x] for x in INTERESTING},
             "libraries_not_in_base_archive": missing,
@@ -109,6 +115,14 @@ def write_report(data, output):
     ]
     for name, count in data["interesting_libraries_packaged"].items():
         lines.append(f"| `{name}` | {'Có' if count else '**Không thấy**'} | {count} |")
+    lines += ["", "## Danh sách thư viện có trong APK", ""]
+    for path in data["native_library_paths"]:
+        lines.append("- `"+path+"`")
+    lines += ["", "## Tài nguyên có tên liên quan đến runtime", ""]
+    for path in data["runtime_asset_path_candidates"]:
+        lines.append("- `"+path+"`")
+    if not data["runtime_asset_path_candidates"]:
+        lines.append("Không thấy tên tài nguyên trùng các từ khóa khảo sát.")
     lines += ["", "## Quan hệ ELF DT_NEEDED", ""]
     for path, info in data["dependency_info"].items():
         lines.append(f"### `{path}`")
