@@ -1,0 +1,1644 @@
+{
+  "sha256": "752bcdc20d88fe535b4de156790e7468bf58c61b21dfd1eba5ee2fbda0facb38",
+  "apk": "v4_candidate.apk",
+  "lib": "lib/arm64-v8a/libysmteam.so",
+  "analysis": "ELF FDE boundaries and AArch64 direct BL graph",
+  "addresses": "RVAs in libysmteam.so, not game/libil2cpp.so",
+  "guarantee": "none: callsites do not demonstrate feature behavior",
+  "stats": {
+    "bytes": 9055952,
+    "fde_function_ranges": 8522,
+    "decoded_instructions": 785928,
+    "direct_calls": 42742,
+    "indirect_calls": 3839
+  },
+  "targets": {
+    "Aim configuration / ImGui UI": {
+      "candidate_rva": "0xf7444",
+      "enclosing_fde_start_rva": "0xf7444",
+      "start_matches_candidate": true,
+      "size_bytes": 88560,
+      "direct_callees": [
+        {
+          "rva": "0x256474",
+          "calls": 27,
+          "exported_names": []
+        },
+        {
+          "rva": "0x256480",
+          "calls": 27,
+          "exported_names": []
+        },
+        {
+          "rva": "0x21213c",
+          "calls": 23,
+          "exported_names": []
+        },
+        {
+          "rva": "0xf5d38",
+          "calls": 15,
+          "exported_names": []
+        },
+        {
+          "rva": "0x20ef5c",
+          "calls": 13,
+          "exported_names": []
+        },
+        {
+          "rva": "0x2124c0",
+          "calls": 10,
+          "exported_names": []
+        },
+        {
+          "rva": "0x200ee4",
+          "calls": 9,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1fe474",
+          "calls": 8,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1e0fc0",
+          "calls": 7,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1df624",
+          "calls": 7,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1e1fa8",
+          "calls": 6,
+          "exported_names": []
+        },
+        {
+          "rva": "0xf5f70",
+          "calls": 6,
+          "exported_names": []
+        },
+        {
+          "rva": "0x20ee00",
+          "calls": 5,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1fb824",
+          "calls": 4,
+          "exported_names": []
+        },
+        {
+          "rva": "0x23bec4",
+          "calls": 4,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1e0dd0",
+          "calls": 4,
+          "exported_names": []
+        },
+        {
+          "rva": "0xcfc70",
+          "calls": 4,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1e0d18",
+          "calls": 4,
+          "exported_names": []
+        },
+        {
+          "rva": "0x20e9a0",
+          "calls": 4,
+          "exported_names": []
+        },
+        {
+          "rva": "0x20e2c4",
+          "calls": 4,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1fe440",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0x23a63c",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0x200fb0",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0x200f6c",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1e1648",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0x212228",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1ed7e8",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1e1094",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0xf5254",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0x211d04",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1fe420",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1fe450",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x23b5fc",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1fb078",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1ff3b4",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1ff2b0",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1fba58",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1e1300",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd3430",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd8a80",
+          "calls": 2,
+          "exported_names": []
+        }
+      ],
+      "direct_callers": [
+        {
+          "rva": "0xe90e4",
+          "calls": 1,
+          "exported_names": [
+            "Java_com_ysmteam_imgui_GLES3JNIView_step"
+          ]
+        }
+      ]
+    },
+    "Aim hero-choice UI": {
+      "candidate_rva": "0x10d0b4",
+      "enclosing_fde_start_rva": "0x10d0b4",
+      "start_matches_candidate": true,
+      "size_bytes": 1540,
+      "direct_callees": [
+        {
+          "rva": "0xf5d38",
+          "calls": 18,
+          "exported_names": []
+        },
+        {
+          "rva": "0x2119c0",
+          "calls": 6,
+          "exported_names": []
+        },
+        {
+          "rva": "0x211d04",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1ff184",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0xe66e8",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1ff3b4",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0x20f04c",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0x20e9a0",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x20ee00",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x200ee4",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x20fe8c",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0xcfc70",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0xf6b70",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x116408",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x20ef5c",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x2124c0",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x20e2c4",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x2015e8",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x201ff8",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x201d3c",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x201f5c",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x20ee08",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x15b764",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x10d6b8",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x15b620",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x116094",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xcf080",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3ca688",
+          "calls": 1,
+          "exported_names": []
+        }
+      ],
+      "direct_callers": [
+        {
+          "rva": "0xf7444",
+          "calls": 1,
+          "exported_names": []
+        }
+      ]
+    },
+    "Skill reflection / callbacks": {
+      "candidate_rva": "0x11b65c",
+      "enclosing_fde_start_rva": "0x11b65c",
+      "start_matches_candidate": true,
+      "size_bytes": 14684,
+      "direct_callees": [
+        {
+          "rva": "0xd1670",
+          "calls": 128,
+          "exported_names": []
+        },
+        {
+          "rva": "0x255fc4",
+          "calls": 80,
+          "exported_names": []
+        },
+        {
+          "rva": "0x255cc4",
+          "calls": 61,
+          "exported_names": []
+        },
+        {
+          "rva": "0xcf200",
+          "calls": 6,
+          "exported_names": []
+        },
+        {
+          "rva": "0x256138",
+          "calls": 4,
+          "exported_names": []
+        }
+      ],
+      "direct_callers": [
+        {
+          "rva": "0xead50",
+          "calls": 1,
+          "exported_names": []
+        }
+      ]
+    },
+    "Target state checks": {
+      "candidate_rva": "0x12de68",
+      "enclosing_fde_start_rva": "0x12de68",
+      "start_matches_candidate": true,
+      "size_bytes": 26840,
+      "direct_callees": [
+        {
+          "rva": "0x125324",
+          "calls": 78,
+          "exported_names": []
+        },
+        {
+          "rva": "0xcfc70",
+          "calls": 37,
+          "exported_names": []
+        },
+        {
+          "rva": "0x116cc4",
+          "calls": 21,
+          "exported_names": []
+        },
+        {
+          "rva": "0x139de8",
+          "calls": 12,
+          "exported_names": []
+        },
+        {
+          "rva": "0x12dc20",
+          "calls": 11,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd7280",
+          "calls": 8,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1382b8",
+          "calls": 7,
+          "exported_names": []
+        },
+        {
+          "rva": "0xce3f0",
+          "calls": 6,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd6f30",
+          "calls": 6,
+          "exported_names": []
+        },
+        {
+          "rva": "0x13e7ec",
+          "calls": 6,
+          "exported_names": []
+        },
+        {
+          "rva": "0x127060",
+          "calls": 5,
+          "exported_names": []
+        },
+        {
+          "rva": "0x13dd64",
+          "calls": 5,
+          "exported_names": []
+        },
+        {
+          "rva": "0x134740",
+          "calls": 4,
+          "exported_names": []
+        },
+        {
+          "rva": "0x139c54",
+          "calls": 4,
+          "exported_names": []
+        },
+        {
+          "rva": "0x13f064",
+          "calls": 4,
+          "exported_names": []
+        },
+        {
+          "rva": "0x13db80",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0x137858",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0xce110",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0xe08c8",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0xe0aa8",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0x125c68",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x13eb94",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x13f780",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x137df4",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x138120",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x12d3f8",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xcf080",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd8810",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x127b78",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x127f40",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x13b618",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x13d338",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1385fc",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x13da94",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x138750",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x138a20",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x13934c",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xe100c",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd78e0",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x13dfd8",
+          "calls": 1,
+          "exported_names": []
+        }
+      ],
+      "direct_callers": [
+        {
+          "rva": "0x11efb8",
+          "calls": 1,
+          "exported_names": []
+        }
+      ]
+    },
+    "Target-choice logic candidate": {
+      "candidate_rva": "0x138a20",
+      "enclosing_fde_start_rva": "0x138a20",
+      "start_matches_candidate": true,
+      "size_bytes": 2348,
+      "direct_callees": [],
+      "direct_callers": [
+        {
+          "rva": "0x12de68",
+          "calls": 1,
+          "exported_names": []
+        }
+      ]
+    },
+    "Target-replacement candidate": {
+      "candidate_rva": "0x13934c",
+      "enclosing_fde_start_rva": "0x13934c",
+      "start_matches_candidate": true,
+      "size_bytes": 1816,
+      "direct_callees": [],
+      "direct_callers": [
+        {
+          "rva": "0x12de68",
+          "calls": 1,
+          "exported_names": []
+        }
+      ]
+    },
+    "Aim HP % reference A": {
+      "candidate_rva": "0x3bbe18",
+      "enclosing_fde_start_rva": "0x3bbe18",
+      "start_matches_candidate": true,
+      "size_bytes": 7188,
+      "direct_callees": [
+        {
+          "rva": "0x3bbe18",
+          "calls": 33,
+          "exported_names": []
+        },
+        {
+          "rva": "0xcec10",
+          "calls": 29,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd2810",
+          "calls": 16,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3b7a94",
+          "calls": 11,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3b9f28",
+          "calls": 7,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3c1584",
+          "calls": 7,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3be2e4",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3bacdc",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3bfb50",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3bf524",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3bdaf0",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3b9d50",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3be654",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3bda2c",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3bfd7c",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3bf474",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3bfe40",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xcf080",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd86a0",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3ca688",
+          "calls": 1,
+          "exported_names": []
+        }
+      ],
+      "direct_callers": [
+        {
+          "rva": "0x3bbe18",
+          "calls": 33,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3bfb50",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3b7a94",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3be654",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3bf474",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3b9d50",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3baf6c",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3c5718",
+          "calls": 1,
+          "exported_names": []
+        }
+      ]
+    },
+    "Aim HP % reference B": {
+      "candidate_rva": "0x3be654",
+      "enclosing_fde_start_rva": "0x3be654",
+      "start_matches_candidate": true,
+      "size_bytes": 3616,
+      "direct_callees": [
+        {
+          "rva": "0xd2810",
+          "calls": 32,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3bbe18",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0xcec10",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd86a0",
+          "calls": 1,
+          "exported_names": []
+        }
+      ],
+      "direct_callers": [
+        {
+          "rva": "0x3bbe18",
+          "calls": 1,
+          "exported_names": []
+        }
+      ]
+    },
+    "Florentino skill reference A": {
+      "candidate_rva": "0x13dfd8",
+      "enclosing_fde_start_rva": "0x13dfd8",
+      "start_matches_candidate": true,
+      "size_bytes": 720,
+      "direct_callees": [
+        {
+          "rva": "0xce110",
+          "calls": 4,
+          "exported_names": []
+        },
+        {
+          "rva": "0xcfc70",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0xce3f0",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0xe06d0",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3ca688",
+          "calls": 1,
+          "exported_names": []
+        }
+      ],
+      "direct_callers": [
+        {
+          "rva": "0x12de68",
+          "calls": 1,
+          "exported_names": []
+        }
+      ]
+    },
+    "Florentino skill reference B": {
+      "candidate_rva": "0x13e2a8",
+      "enclosing_fde_start_rva": "0x13e2a8",
+      "start_matches_candidate": true,
+      "size_bytes": 1348,
+      "direct_callees": [
+        {
+          "rva": "0xce110",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0xcfc70",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0xce3f0",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd6f30",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xe10f4",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd8010",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xe06d0",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xe0aa8",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xcf080",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3ca688",
+          "calls": 1,
+          "exported_names": []
+        }
+      ],
+      "direct_callers": [
+        {
+          "rva": "0x12de68",
+          "calls": 1,
+          "exported_names": []
+        }
+      ]
+    },
+    "JNI bootstrap": {
+      "candidate_rva": "0xf5088",
+      "enclosing_fde_start_rva": "0xf5088",
+      "start_matches_candidate": true,
+      "size_bytes": 460,
+      "direct_callees": [
+        {
+          "rva": "0xce3f0",
+          "calls": 4,
+          "exported_names": []
+        },
+        {
+          "rva": "0xcfc70",
+          "calls": 4,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3ca688",
+          "calls": 4,
+          "exported_names": []
+        },
+        {
+          "rva": "0xce230",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd3b60",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd1cf0",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd2720",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0xcf8c0",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd4cf0",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0xcf080",
+          "calls": 1,
+          "exported_names": []
+        }
+      ],
+      "direct_callers": []
+    },
+    "JNI rendering frame": {
+      "candidate_rva": "0xe90e4",
+      "enclosing_fde_start_rva": "0xe90e4",
+      "start_matches_candidate": true,
+      "size_bytes": 2604,
+      "direct_callees": [
+        {
+          "rva": "0x23a3bc",
+          "calls": 11,
+          "exported_names": []
+        },
+        {
+          "rva": "0x2005b0",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1ed7a8",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x23a63c",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x155494",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1e0fc0",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1e1300",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1fe39c",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1f4944",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1f4970",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1fe420",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x20fed4",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1ecd3c",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1fe358",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1faf2c",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1f9f7c",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd8810",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xcea20",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x24fef8",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1eecd8",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1ed98c",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xe6f7c",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x16f578",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x15ca88",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xdc388",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xdcd04",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xe6c74",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xf68ac",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xf6b70",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xdc2e8",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x155264",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1fa6c8",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1ed7c8",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x250300",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x116690",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x157dd0",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x116478",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1e152c",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1fe404",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x200f6c",
+          "calls": 1,
+          "exported_names": []
+        }
+      ],
+      "direct_callers": []
+    },
+    "JNI touch": {
+      "candidate_rva": "0xe9d40",
+      "enclosing_fde_start_rva": "0xe9d40",
+      "start_matches_candidate": true,
+      "size_bytes": 460,
+      "direct_callees": [
+        {
+          "rva": "0x1dda18",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1dffd4",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1ed7a8",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x155248",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1dddd4",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1dd83c",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xdc2e8",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1551b4",
+          "calls": 1,
+          "exported_names": []
+        }
+      ],
+      "direct_callers": []
+    },
+    "DobbyHook exported function": {
+      "candidate_rva": "0x25648c",
+      "enclosing_fde_start_rva": "0x25648c",
+      "start_matches_candidate": true,
+      "size_bytes": 344,
+      "direct_callees": [
+        {
+          "rva": "0xd02f0",
+          "calls": 4,
+          "exported_names": []
+        },
+        {
+          "rva": "0x2565e4",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0xce3f0",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x256614",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd2f00",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x256688",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x256650",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x256a30",
+          "calls": 1,
+          "exported_names": []
+        }
+      ],
+      "direct_callers": []
+    },
+    "Old auth-success candidate": {
+      "candidate_rva": "0x1c23c4",
+      "enclosing_fde_start_rva": "0x19d1c4",
+      "start_matches_candidate": false,
+      "size_bytes": 157572,
+      "direct_callees": [
+        {
+          "rva": "0xcfc70",
+          "calls": 127,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd81a0",
+          "calls": 69,
+          "exported_names": []
+        },
+        {
+          "rva": "0xce3f0",
+          "calls": 49,
+          "exported_names": []
+        },
+        {
+          "rva": "0x256474",
+          "calls": 48,
+          "exported_names": []
+        },
+        {
+          "rva": "0x256480",
+          "calls": 48,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd6f30",
+          "calls": 37,
+          "exported_names": []
+        },
+        {
+          "rva": "0xe0aa8",
+          "calls": 37,
+          "exported_names": []
+        },
+        {
+          "rva": "0xe0bf0",
+          "calls": 34,
+          "exported_names": []
+        },
+        {
+          "rva": "0x18ea78",
+          "calls": 21,
+          "exported_names": []
+        },
+        {
+          "rva": "0x167778",
+          "calls": 20,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd3d60",
+          "calls": 17,
+          "exported_names": []
+        },
+        {
+          "rva": "0x18b9c0",
+          "calls": 16,
+          "exported_names": []
+        },
+        {
+          "rva": "0xe05e8",
+          "calls": 12,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd5810",
+          "calls": 10,
+          "exported_names": []
+        },
+        {
+          "rva": "0xcdfb0",
+          "calls": 10,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd1400",
+          "calls": 8,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd53b0",
+          "calls": 8,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd2ae0",
+          "calls": 8,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1906a8",
+          "calls": 6,
+          "exported_names": []
+        },
+        {
+          "rva": "0xcd6f0",
+          "calls": 6,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1d868c",
+          "calls": 5,
+          "exported_names": []
+        },
+        {
+          "rva": "0xdccf8",
+          "calls": 5,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd07f0",
+          "calls": 4,
+          "exported_names": []
+        },
+        {
+          "rva": "0xe06d0",
+          "calls": 4,
+          "exported_names": []
+        },
+        {
+          "rva": "0xcebd0",
+          "calls": 4,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd63d0",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0x18ff44",
+          "calls": 3,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1d2948",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd0cb0",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd69d0",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd0770",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0xcda50",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x18b608",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0xce110",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0xe0cb8",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3ca688",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd4020",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd66e0",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x170140",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1c3948",
+          "calls": 1,
+          "exported_names": []
+        }
+      ],
+      "direct_callers": [
+        {
+          "rva": "0x19d0d8",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x1dd280",
+          "calls": 1,
+          "exported_names": []
+        }
+      ]
+    },
+    "Old auth-branch candidate": {
+      "candidate_rva": "0x1dd2b8",
+      "enclosing_fde_start_rva": "0x1dd280",
+      "start_matches_candidate": false,
+      "size_bytes": 276,
+      "direct_callees": [
+        {
+          "rva": "0xcfc70",
+          "calls": 6,
+          "exported_names": []
+        },
+        {
+          "rva": "0x15b3fc",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd4cf0",
+          "calls": 2,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd68f0",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xd2640",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x19d1c4",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0xe05e8",
+          "calls": 1,
+          "exported_names": []
+        },
+        {
+          "rva": "0x3ca688",
+          "calls": 1,
+          "exported_names": []
+        }
+      ],
+      "direct_callers": []
+    }
+  },
+  "edges_between_candidates": [
+    {
+      "source": "Aim configuration / ImGui UI",
+      "destination": "Aim hero-choice UI",
+      "count": 1
+    },
+    {
+      "source": "Target state checks",
+      "destination": "Target-choice logic candidate",
+      "count": 1
+    },
+    {
+      "source": "Target state checks",
+      "destination": "Target-replacement candidate",
+      "count": 1
+    },
+    {
+      "source": "Target state checks",
+      "destination": "Florentino skill reference A",
+      "count": 1
+    },
+    {
+      "source": "Target state checks",
+      "destination": "Florentino skill reference B",
+      "count": 1
+    },
+    {
+      "source": "Aim HP % reference A",
+      "destination": "Aim HP % reference B",
+      "count": 1
+    },
+    {
+      "source": "Aim HP % reference B",
+      "destination": "Aim HP % reference A",
+      "count": 2
+    },
+    {
+      "source": "JNI rendering frame",
+      "destination": "Aim configuration / ImGui UI",
+      "count": 1
+    },
+    {
+      "source": "Old auth-branch candidate",
+      "destination": "Old auth-success candidate",
+      "count": 1
+    }
+  ]
+}
