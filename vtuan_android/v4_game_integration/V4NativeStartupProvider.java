@@ -38,8 +38,7 @@ public final class V4NativeStartupProvider extends ContentProvider {
             @Override public void onActivityStarted(Activity a){}
             @Override public void onActivityResumed(Activity a){
                 if(!GAME_ACTIVITY.equals(a.getClass().getName()))return;
-                boolean wanted=context.getSharedPreferences("vtuan_v4",Context.MODE_PRIVATE)
-                        .getBoolean("native_requested",false);
+                boolean wanted=V4Session.isValid(System.currentTimeMillis());
                 if(!wanted){
                     Log.i(TAG,"No verified VTUAN session; native bridge not loaded");
                     return;
@@ -49,6 +48,10 @@ public final class V4NativeStartupProvider extends ContentProvider {
                 // Let the original activity finish creating the Unity surface first.
                 ui.postDelayed(() -> {
                     if(a.isFinishing()||a.isDestroyed())return;
+                    if(!V4Session.isValid(System.currentTimeMillis())){
+                        Log.i(TAG,"VTUAN session expired before native startup");
+                        return;
+                    }
                     Log.i(TAG,"Attempting original V4 JNI/EGL bootstrap");
                     if(!GLES3JNIView.attach(a)){
                         Log.e(TAG,"Original native renderer was not attached");
