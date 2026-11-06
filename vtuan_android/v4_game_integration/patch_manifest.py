@@ -54,6 +54,13 @@ def main(filename):
     perms={x.get(A("name")) for x in root.findall("uses-permission")}
     if "android.permission.INTERNET" not in perms:
         ET.SubElement(root,"uses-permission",{A("name"):"android.permission.INTERNET"})
+    provider=ET.SubElement(app,"provider",{
+        A("name"):"com.vtuan.v4integration.V4NativeStartupProvider",
+        A("authorities"):PACKAGE+".vtuan.native.bootstrap",
+        A("exported"):"false",
+        A("initOrder"):"100",
+        A("enabled"):"true",
+    })
     tree.write(path,encoding="utf-8",xml_declaration=True)
     print("PASS: one launcher rerouted to VTUAN, original SGameActivity retained")
 
