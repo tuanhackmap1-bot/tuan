@@ -129,12 +129,12 @@ public final class KeyActivity extends Activity {
     try{
       Intent intent=getPackageManager().getLaunchIntentForPackage("com.garena.game.kgvn");
       if(intent==null){
-        status.append("\\nKhông tìm thấy Liên Quân đã cài.");
+        status.append("\nKhông tìm thấy Liên Quân đã cài.");
         return;
       }
       startActivity(intent);
     }catch(Exception ignored){
-      status.append("\\nKhông thể mở Liên Quân trên thiết bị này.");
+      status.append("\nKhông thể mở Liên Quân trên thiết bị này.");
     }
   }
   private void activate(){
@@ -166,7 +166,7 @@ public final class KeyActivity extends Activity {
           }
           if(save.isChecked())prefs.edit().putString("activated_key",key).putBoolean("auto",auto.isChecked()).apply();
           else prefs.edit().remove("activated_key").putBoolean("auto",false).apply();
-          status.setText("✓ Key hợp lệ\\nGói: "+days+" ngày\\nHết hạn: "+expiry.replace('T',' '));
+          status.setText("✓ Key hợp lệ\nGói: "+days+" ngày\nHết hạn: "+expiry.replace('T',' '));
           launch.setVisibility(View.VISIBLE);
           if(auto.isChecked())openGame();
         });
