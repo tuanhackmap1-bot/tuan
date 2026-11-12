@@ -1,0 +1,25 @@
+name: Build VTUAN iOS Key Gate
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+  push:
+    branches:
+      - vtuan-ios-keygate-compile-20261112
+    paths:
+      - 'vtuan_ios_keygate/**'
+      - '.github/workflows/build-vtuan-ios-keygate.yml'
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile ARM64 iOS dylib
+        run: bash vtuan_ios_keygate/build_macos.sh
+      - name: Upload unsigned library
+        uses: actions/upload-artifact@v4
+        with:
+          name: VTUANKeyGate-ios-arm64-unsigned
+          path: vtuan_ios_keygate/build/VTUANKeyGate.dylib
+          if-no-files-found: error
