@@ -1,5 +1,8 @@
 name: Build VTUAN iOS Key Gate
 on:
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
   push:
     branches:
