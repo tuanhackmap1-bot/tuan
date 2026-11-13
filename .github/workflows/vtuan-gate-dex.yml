@@ -1,0 +1,47 @@
+name: Compile VTUAN Android gate DEX
+on:
+  push:
+    branches:
+      - vtuan-apk-key-tool-20261113
+    paths:
+      - 'tools/vtuan_gate_src/**'
+      - '.github/workflows/vtuan-gate-dex.yml'
+  workflow_dispatch:
+
+jobs:
+  gate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile VTUAN Android Activity into classes.dex
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $src = "tools\vtuan_gate_src\com\vtuan\gate\VTuanGateActivity.java"
+          $classesDir = Join-Path $env:RUNNER_TEMP "vtuan_class"
+          $dexDir = Join-Path $env:RUNNER_TEMP "vtuan_dex"
+          New-Item -ItemType Directory -Force -Path $classesDir,$dexDir | Out-Null
+          $buildTools = Get-ChildItem (Join-Path $env:ANDROID_HOME "build-tools") -Directory |
+            Sort-Object Name -Descending | Select-Object -First 1
+          $sdkPlatform = Get-ChildItem (Join-Path $env:ANDROID_HOME "platforms") -Directory |
+            Sort-Object Name -Descending | Select-Object -First 1
+          $androidJar = Join-Path $sdkPlatform.FullName "android.jar"
+          $d8 = Join-Path $buildTools.FullName "d8.bat"
+          if (!(Test-Path $androidJar) -or !(Test-Path $d8)) {
+            throw "Android SDK jar / d8 missing from runner"
+          }
+          & javac -encoding UTF-8 -source 8 -target 8 -cp $androidJar -d $classesDir $src
+          if ($LASTEXITCODE -ne 0) { throw "javac failed" }
+          $compiled = @(Get-ChildItem $classesDir -Filter "*.class" -Recurse | ForEach-Object { $_.FullName })
+          if ($compiled.Count -lt 1) { throw "No class files compiled" }
+          & $d8 --min-api 23 --lib $androidJar --output $dexDir @compiled
+          if ($LASTEXITCODE -ne 0) { throw "d8 failed" }
+          $dex = Join-Path $dexDir "classes.dex"
+          if (!(Test-Path $dex)) { throw "d8 did not emit classes.dex" }
+          Copy-Item $dex "tools\vtuan_gate_classes.dex"
+          Write-Host "DEX created; $(Get-Item $dex).Length bytes"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vtuan-gate-classes
+          path: tools/vtuan_gate_classes.dex
+          retention-days: 7
