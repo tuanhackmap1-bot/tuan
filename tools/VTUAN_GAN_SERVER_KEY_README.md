@@ -25,3 +25,6 @@ This script is a conservative static-URL replacement and signing tool. It does n
 - The APK is signed with a debug certificate and may not update a previously installed application.
 - Successful APK signing does NOT establish that the game launches or that the VTUAN server works.
 - Never publish personal keys or other secrets in GitHub issues.
+
+## Automatic validation
+The GitHub Actions workflow at .github/workflows/vtuan-powershell-smoke.yml runs Windows PowerShell syntax checks, verifies the release asset lookup, checks missing-APK failure handling, and builds a tiny synthetic Android APK with an old static auth host. It then runs this script and checks that the new host is embedded in the rebuilt, signed result. The synthetic APK test succeeded on the VTUAN branch. This does not prove that a third-party game's authentication protocol is compatible.
