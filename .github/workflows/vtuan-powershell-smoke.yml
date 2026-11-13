@@ -1,0 +1,153 @@
+name: VTUAN PowerShell tool syntax and downloader smoke test
+
+on:
+  push:
+    branches:
+      - vtuan-apk-key-tool-20261113
+  pull_request:
+    paths:
+      - 'tools/VTUAN_GAN_SERVER_KEY.ps1'
+      - '.github/workflows/vtuan-powershell-smoke.yml'
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check PowerShell parser
+        shell: pwsh
+        run: |
+          $file = Join-Path $env:GITHUB_WORKSPACE "tools\VTUAN_GAN_SERVER_KEY.ps1"
+          $tok = $null
+          $err = $null
+          $null = [System.Management.Automation.Language.Parser]::ParseFile($file, [ref]$tok, [ref]$err)
+          if ($err.Count -gt 0) {
+            $err | Format-List * | Out-String | Write-Host
+            throw "PowerShell parser failed"
+          }
+          Write-Host "PASS: Script parses."
+      - name: Check real download names from release APIs
+        shell: pwsh
+        run: |
+          $h = @{"User-Agent"="VTUAN-CI"}
+          $a = Invoke-RestMethod -Headers $h -Uri "https://api.github.com/repos/iBotPeaches/Apktool/releases/latest"
+          $b = Invoke-RestMethod -Headers $h -Uri "https://api.github.com/repos/patrickfav/uber-apk-signer/releases/latest"
+          $aj = @($a.assets | Where-Object { $_.name -match '^apktool[_-].*\.jar$' })
+          $bj = @($b.assets | Where-Object { $_.name -match '^uber-apk-signer.*\.jar$' })
+          if ($aj.Count -lt 1 -or $bj.Count -lt 1) {
+            throw "Release JAR regex did not match actual GitHub assets: apktool=$($aj.Count) signer=$($bj.Count)"
+          }
+          Write-Host "PASS: $($aj[0].name) / $($bj[0].name)"
+      - name: Check safe handling when original APK is missing
+        shell: pwsh
+        run: |
+          $folder = Join-Path $env:TEMP "vtuan_smoke"
+          New-Item -ItemType Directory -Path $folder -Force | Out-Null
+          Copy-Item "tools\VTUAN_GAN_SERVER_KEY.ps1" $folder
+          & powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$folder\VTUAN_GAN_SERVER_KEY.ps1" -ApkPath "$folder\missing.apk"
+          if ($LASTEXITCODE -ne 1) { throw "Expected missing-APK safety failure" }
+          $global:LASTEXITCODE = 0 # Expected failure should not fail the GitHub Actions wrapper
+          $report = Join-Path $folder "VTUAN_KEY_WORK\VTUAN_KET_QUA.txt"
+          if (!(Test-Path $report)) { throw "Missing diagnostic report" }
+          Write-Host "PASS: Missing APK handled without fake build."
+      - name: End-to-end APK rebuild and signing test
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $fixture = Join-Path $env:TEMP "vtuan_e2e"
+          New-Item -ItemType Directory -Force -Path $fixture | Out-Null
+          Copy-Item "tools\VTUAN_GAN_SERVER_KEY.ps1" $fixture
+          $res = Join-Path $fixture "res\values"
+          New-Item -ItemType Directory -Force -Path $res | Out-Null
+          @'
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.vtuan.fixture">
+              <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="28"/>
+              <application android:label="@string/app_name" android:hasCode="false">
+                  <meta-data android:name="key_server" android:value="https://old-vtuan.example"/>
+              </application>
+          </manifest>
+          '@ | Set-Content -LiteralPath (Join-Path $fixture "AndroidManifest.xml") -Encoding utf8
+          '<resources><string name="app_name">VTUAN Test</string></resources>' |
+              Set-Content -LiteralPath (Join-Path $res "strings.xml") -Encoding utf8
+          $buildTools = Get-ChildItem (Join-Path $env:ANDROID_HOME "build-tools") -Directory |
+            Sort-Object Name -Descending | Select-Object -First 1
+          $sdkPlatforms = Get-ChildItem (Join-Path $env:ANDROID_HOME "platforms") -Directory |
+            Sort-Object Name -Descending | Select-Object -First 1
+          $aapt = Join-Path $buildTools.FullName "aapt.exe"
+          $androidJar = Join-Path $sdkPlatforms.FullName "android.jar"
+          if (!(Test-Path $aapt) -or !(Test-Path $androidJar)) {
+            throw "Missing Android build-tools aapt or platform in GitHub Actions runner"
+          }
+          $apk = Join-Path $fixture "fixture.apk"
+          & $aapt package -f -M (Join-Path $fixture "AndroidManifest.xml") -S (Join-Path $fixture "res") -I $androidJar -F $apk
+          if ($LASTEXITCODE -ne 0 -or !(Test-Path $apk)) { throw "Fixture APK generation failed" }
+          Write-Host "Built fixture APK."
+          & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $fixture "VTUAN_GAN_SERVER_KEY.ps1") -ApkPath $apk -OldBaseUrl "https://old-vtuan.example"
+          if ($LASTEXITCODE -ne 0) { throw "VTUAN patcher failed" }
+          $signed = Join-Path $fixture "VTUAN_KEY_SIGNED.apk"
+          if (!(Test-Path $signed)) { throw "Signed APK was not produced" }
+          $decodedManifest = Join-Path $fixture "VTUAN_KEY_WORK\decoded\AndroidManifest.xml"
+          $content = Get-Content -LiteralPath $decodedManifest -Raw
+          if ($content -notmatch [regex]::Escape("https://vtuan-103-159-51-231.sslip.io")) {
+             throw "VTUAN URL not found in patched manifest"
+          }
+          Write-Host "PASS: APK decoded, patched, rebuilt and signed."
+      - name: Build VTUAN Android login gate DEX
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $src = "tools\vtuan_gate_src\com\vtuan\gate\VTuanGateActivity.java"
+          $classesDir = Join-Path $env:RUNNER_TEMP "vtuan_class"
+          $dexDir = Join-Path $env:RUNNER_TEMP "vtuan_dex"
+          New-Item -ItemType Directory -Force -Path $classesDir,$dexDir | Out-Null
+          $buildTools = Get-ChildItem (Join-Path $env:ANDROID_HOME "build-tools") -Directory |
+            Sort-Object Name -Descending | Select-Object -First 1
+          $sdkPlatform = Get-ChildItem (Join-Path $env:ANDROID_HOME "platforms") -Directory |
+            Sort-Object Name -Descending | Select-Object -First 1
+          $androidJar = Join-Path $sdkPlatform.FullName "android.jar"
+          $d8 = Join-Path $buildTools.FullName "d8.bat"
+          if (!(Test-Path $androidJar) -or !(Test-Path $d8)) { throw "Android SDK d8 is missing" }
+          & javac -encoding UTF-8 -source 8 -target 8 -cp $androidJar -d $classesDir $src
+          if ($LASTEXITCODE -ne 0) { throw "javac failed" }
+          $compiled = @(Get-ChildItem $classesDir -Filter "*.class" -Recurse | ForEach-Object { $_.FullName })
+          & $d8 --min-api 23 --lib $androidJar --output $dexDir @compiled
+          if ($LASTEXITCODE -ne 0) { throw "d8 failed" }
+          Copy-Item (Join-Path $dexDir "classes.dex") "tools\vtuan_gate_classes.dex"
+          if (!(Test-Path "tools\vtuan_gate_classes.dex")) { throw "Missing gate classes.dex" }
+          Write-Host "PASS: Built VTUAN login gate classes.dex"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vtuan-gate-classes
+          path: tools/vtuan_gate_classes.dex
+          retention-days: 7
+
+      - name: End-to-end ARSC repair on synthetic APK
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $fixture = Join-Path $env:TEMP "vtuan_e2e"
+          $input = Join-Path $fixture "VTUAN_KEY_SIGNED.apk"
+          $repacked = Join-Path $fixture "ARSC_REPACK_UNSIGNED.apk"
+          $signer = Join-Path $fixture "VTUAN_TOOLS\uber-apk-signer.jar"
+          & javac -encoding UTF-8 -d $fixture "tools\FixArsc.java"
+          if ($LASTEXITCODE -ne 0) { throw "FixArsc Java compile failed" }
+          & java -cp $fixture FixArsc $input $repacked
+          if ($LASTEXITCODE -ne 0) { throw "ARSC repackage failed" }
+          $out = Join-Path $fixture "rescued"
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          & java -jar $signer -a $repacked --out $out --allowResign
+          if ($LASTEXITCODE -ne 0) { throw "ARSC APK signing failed" }
+          $signed = @(Get-ChildItem -LiteralPath $out -Filter "*.apk" -File)
+          if ($signed.Count -ne 1) { throw "Expected one signed APK, got $($signed.Count)" }
+          & java -cp $fixture FixArsc --verify $signed[0].FullName
+          if ($LASTEXITCODE -ne 0) { throw "ARSC storage/alignment verification failed" }
+          Write-Host "PASS: repaired APK resources.arsc is STORED and 4-byte aligned after re-signing."
+      - name: Check ARSC repair PowerShell parser
+        shell: pwsh
+        run: |
+          $tok = $null
+          $err = $null
+          $null = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $env:GITHUB_WORKSPACE "tools\VTUAN_SUA_LOI_CAI_APK.ps1"), [ref]$tok, [ref]$err)
+          if ($err.Count -gt 0) { $err | ForEach-Object { Write-Host "$_" }; throw "Repair PowerShell script parse error" }
+          Write-Host "PASS: Repair PowerShell script parses"
