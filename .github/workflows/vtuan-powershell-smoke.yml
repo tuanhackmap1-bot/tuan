@@ -46,6 +46,7 @@ jobs:
           Copy-Item "tools\VTUAN_GAN_SERVER_KEY.ps1" $folder
           & powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$folder\VTUAN_GAN_SERVER_KEY.ps1" -ApkPath "$folder\missing.apk"
           if ($LASTEXITCODE -ne 1) { throw "Expected missing-APK safety failure" }
+          $global:LASTEXITCODE = 0 # Expected failure should not fail the GitHub Actions wrapper
           $report = Join-Path $folder "VTUAN_KEY_WORK\VTUAN_KET_QUA.txt"
           if (!(Test-Path $report)) { throw "Missing diagnostic report" }
           Write-Host "PASS: Missing APK handled without fake build."
