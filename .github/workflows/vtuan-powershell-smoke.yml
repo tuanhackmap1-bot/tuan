@@ -93,3 +93,31 @@ jobs:
              throw "VTUAN URL not found in patched manifest"
           }
           Write-Host "PASS: APK decoded, patched, rebuilt and signed."
+      - name: Build VTUAN Android login gate DEX
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $src = "tools\vtuan_gate_src\com\vtuan\gate\VTuanGateActivity.java"
+          $classesDir = Join-Path $env:RUNNER_TEMP "vtuan_class"
+          $dexDir = Join-Path $env:RUNNER_TEMP "vtuan_dex"
+          New-Item -ItemType Directory -Force -Path $classesDir,$dexDir | Out-Null
+          $buildTools = Get-ChildItem (Join-Path $env:ANDROID_HOME "build-tools") -Directory |
+            Sort-Object Name -Descending | Select-Object -First 1
+          $sdkPlatform = Get-ChildItem (Join-Path $env:ANDROID_HOME "platforms") -Directory |
+            Sort-Object Name -Descending | Select-Object -First 1
+          $androidJar = Join-Path $sdkPlatform.FullName "android.jar"
+          $d8 = Join-Path $buildTools.FullName "d8.bat"
+          if (!(Test-Path $androidJar) -or !(Test-Path $d8)) { throw "Android SDK d8 is missing" }
+          & javac -encoding UTF-8 -source 8 -target 8 -cp $androidJar -d $classesDir $src
+          if ($LASTEXITCODE -ne 0) { throw "javac failed" }
+          $compiled = @(Get-ChildItem $classesDir -Filter "*.class" -Recurse | ForEach-Object { $_.FullName })
+          & $d8 --min-api 23 --lib $androidJar --output $dexDir @compiled
+          if ($LASTEXITCODE -ne 0) { throw "d8 failed" }
+          Copy-Item (Join-Path $dexDir "classes.dex") "tools\vtuan_gate_classes.dex"
+          if (!(Test-Path "tools\vtuan_gate_classes.dex")) { throw "Missing gate classes.dex" }
+          Write-Host "PASS: Built VTUAN login gate classes.dex"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vtuan-gate-classes
+          path: tools/vtuan_gate_classes.dex
+          retention-days: 7
