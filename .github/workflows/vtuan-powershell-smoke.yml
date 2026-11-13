@@ -50,3 +50,46 @@ jobs:
           $report = Join-Path $folder "VTUAN_KEY_WORK\VTUAN_KET_QUA.txt"
           if (!(Test-Path $report)) { throw "Missing diagnostic report" }
           Write-Host "PASS: Missing APK handled without fake build."
+      - name: End-to-end APK rebuild and signing test
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $fixture = Join-Path $env:TEMP "vtuan_e2e"
+          New-Item -ItemType Directory -Force -Path $fixture | Out-Null
+          Copy-Item "tools\VTUAN_GAN_SERVER_KEY.ps1" $fixture
+          $res = Join-Path $fixture "res\values"
+          New-Item -ItemType Directory -Force -Path $res | Out-Null
+          @'
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.vtuan.fixture">
+              <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="28"/>
+              <application android:label="@string/app_name" android:hasCode="false">
+                  <meta-data android:name="key_server" android:value="https://old-vtuan.example"/>
+              </application>
+          </manifest>
+          '@ | Set-Content -LiteralPath (Join-Path $fixture "AndroidManifest.xml") -Encoding utf8
+          '<resources><string name="app_name">VTUAN Test</string></resources>' |
+              Set-Content -LiteralPath (Join-Path $res "strings.xml") -Encoding utf8
+          $buildTools = Get-ChildItem (Join-Path $env:ANDROID_HOME "build-tools") -Directory |
+            Sort-Object Name -Descending | Select-Object -First 1
+          $sdkPlatforms = Get-ChildItem (Join-Path $env:ANDROID_HOME "platforms") -Directory |
+            Sort-Object Name -Descending | Select-Object -First 1
+          $aapt = Join-Path $buildTools.FullName "aapt.exe"
+          $androidJar = Join-Path $sdkPlatforms.FullName "android.jar"
+          if (!(Test-Path $aapt) -or !(Test-Path $androidJar)) {
+            throw "Missing Android build-tools aapt or platform in GitHub Actions runner"
+          }
+          $apk = Join-Path $fixture "fixture.apk"
+          & $aapt package -f -M (Join-Path $fixture "AndroidManifest.xml") -S (Join-Path $fixture "res") -I $androidJar -F $apk
+          if ($LASTEXITCODE -ne 0 -or !(Test-Path $apk)) { throw "Fixture APK generation failed" }
+          Write-Host "Built fixture APK."
+          & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $fixture "VTUAN_GAN_SERVER_KEY.ps1") -ApkPath $apk -OldBaseUrl "https://old-vtuan.example"
+          if ($LASTEXITCODE -ne 0) { throw "VTUAN patcher failed" }
+          $signed = Join-Path $fixture "VTUAN_KEY_SIGNED.apk"
+          if (!(Test-Path $signed)) { throw "Signed APK was not produced" }
+          $decodedManifest = Join-Path $fixture "VTUAN_KEY_WORK\decoded\AndroidManifest.xml"
+          $content = Get-Content -LiteralPath $decodedManifest -Raw
+          if ($content -notmatch [regex]::Escape("https://vtuan-103-159-51-231.sslip.io")) {
+             throw "VTUAN URL not found in patched manifest"
+          }
+          Write-Host "PASS: APK decoded, patched, rebuilt and signed."
