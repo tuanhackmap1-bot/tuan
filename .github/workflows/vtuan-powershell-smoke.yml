@@ -1,0 +1,51 @@
+name: VTUAN PowerShell tool syntax and downloader smoke test
+
+on:
+  push:
+    branches:
+      - vtuan-apk-key-tool-20261113
+  pull_request:
+    paths:
+      - 'tools/VTUAN_GAN_SERVER_KEY.ps1'
+      - '.github/workflows/vtuan-powershell-smoke.yml'
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check PowerShell parser
+        shell: pwsh
+        run: |
+          $file = Join-Path $env:GITHUB_WORKSPACE "tools\VTUAN_GAN_SERVER_KEY.ps1"
+          $tok = $null
+          $err = $null
+          $null = [System.Management.Automation.Language.Parser]::ParseFile($file, [ref]$tok, [ref]$err)
+          if ($err.Count -gt 0) {
+            $err | Format-List * | Out-String | Write-Host
+            throw "PowerShell parser failed"
+          }
+          Write-Host "PASS: Script parses."
+      - name: Check real download names from release APIs
+        shell: pwsh
+        run: |
+          $h = @{"User-Agent"="VTUAN-CI"}
+          $a = Invoke-RestMethod -Headers $h -Uri "https://api.github.com/repos/iBotPeaches/Apktool/releases/latest"
+          $b = Invoke-RestMethod -Headers $h -Uri "https://api.github.com/repos/patrickfav/uber-apk-signer/releases/latest"
+          $aj = @($a.assets | Where-Object { $_.name -match '^apktool[_-].*\.jar$' })
+          $bj = @($b.assets | Where-Object { $_.name -match '^uber-apk-signer.*\.jar$' })
+          if ($aj.Count -lt 1 -or $bj.Count -lt 1) {
+            throw "Release JAR regex did not match actual GitHub assets: apktool=$($aj.Count) signer=$($bj.Count)"
+          }
+          Write-Host "PASS: $($aj[0].name) / $($bj[0].name)"
+      - name: Check safe handling when original APK is missing
+        shell: pwsh
+        run: |
+          $folder = Join-Path $env:TEMP "vtuan_smoke"
+          New-Item -ItemType Directory -Path $folder -Force | Out-Null
+          Copy-Item "tools\VTUAN_GAN_SERVER_KEY.ps1" $folder
+          & powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$folder\VTUAN_GAN_SERVER_KEY.ps1" -ApkPath "$folder\missing.apk"
+          if ($LASTEXITCODE -ne 1) { throw "Expected missing-APK safety failure" }
+          $report = Join-Path $folder "VTUAN_KEY_WORK\VTUAN_KET_QUA.txt"
+          if (!(Test-Path $report)) { throw "Missing diagnostic report" }
+          Write-Host "PASS: Missing APK handled without fake build."
