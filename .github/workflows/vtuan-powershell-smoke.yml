@@ -121,3 +121,33 @@ jobs:
           name: vtuan-gate-classes
           path: tools/vtuan_gate_classes.dex
           retention-days: 7
+
+      - name: End-to-end ARSC repair on synthetic APK
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $fixture = Join-Path $env:TEMP "vtuan_e2e"
+          $input = Join-Path $fixture "VTUAN_KEY_SIGNED.apk"
+          $repacked = Join-Path $fixture "ARSC_REPACK_UNSIGNED.apk"
+          $signer = Join-Path $fixture "VTUAN_TOOLS\uber-apk-signer.jar"
+          & javac -encoding UTF-8 -d $fixture "tools\FixArsc.java"
+          if ($LASTEXITCODE -ne 0) { throw "FixArsc Java compile failed" }
+          & java -cp $fixture FixArsc $input $repacked
+          if ($LASTEXITCODE -ne 0) { throw "ARSC repackage failed" }
+          $out = Join-Path $fixture "rescued"
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          & java -jar $signer -a $repacked --out $out --allowResign
+          if ($LASTEXITCODE -ne 0) { throw "ARSC APK signing failed" }
+          $signed = @(Get-ChildItem -LiteralPath $out -Filter "*.apk" -File)
+          if ($signed.Count -ne 1) { throw "Expected one signed APK, got $($signed.Count)" }
+          & java -cp $fixture FixArsc --verify $signed[0].FullName
+          if ($LASTEXITCODE -ne 0) { throw "ARSC storage/alignment verification failed" }
+          Write-Host "PASS: repaired APK resources.arsc is STORED and 4-byte aligned after re-signing."
+      - name: Check ARSC repair PowerShell parser
+        shell: pwsh
+        run: |
+          $tok = $null
+          $err = $null
+          $null = [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $env:GITHUB_WORKSPACE "tools\VTUAN_SUA_LOI_CAI_APK.ps1"), [ref]$tok, [ref]$err)
+          if ($err.Count -gt 0) { $err | ForEach-Object { Write-Host "$_" }; throw "Repair PowerShell script parse error" }
+          Write-Host "PASS: Repair PowerShell script parses"
